@@ -4,7 +4,8 @@ Find the most engaging NBA game to watch from the past week based on multiple cr
 
 ## Features
 
-- **Modular Architecture**: Run as CLI, REST API, or Web Application
+- **Modular Architecture**: Run as CLI, REST API, Web Application, or TRMNL E-ink Display
+- **TRMNL Integration**: Display on your e-ink dashboard with multiple layout options
 - **Smart Scoring Algorithm**: Evaluates games based on:
   - Lead changes (more exciting)
   - Top 5 team participation
@@ -83,6 +84,28 @@ python src/interfaces/web/app.py
 
 Then open your browser to `http://localhost:8080`
 
+### TRMNL E-ink Display
+
+Display game recommendations on your TRMNL e-ink device!
+
+**Quick Setup**:
+1. Deploy this app to Railway or your preferred platform
+2. In your TRMNL account, create a Private Plugin with "Polling" strategy
+3. Set endpoint to: `https://your-app.railway.app/api/trmnl?days=7&team=LAL`
+4. Copy the markup from `trmnl/src/full.liquid` (or other layouts)
+5. Add to your TRMNL playlist
+
+**Endpoints**:
+- `GET /api/trmnl?days=7&team=LAL` - TRMNL-compatible webhook
+
+**Layouts Available**:
+- Full screen (`full.liquid`)
+- Half horizontal (`half_horizontal.liquid`)
+- Half vertical (`half_vertical.liquid`)
+- Quadrant (`quadrant.liquid`)
+
+See [trmnl/README.md](trmnl/README.md) for complete setup instructions and customization options.
+
 ## Configuration
 
 Edit `config.yaml` to customize:
@@ -143,6 +166,16 @@ nba-most-engaging-game-of-the-week/
 │           ├── app.py          # Web application
 │           └── templates/
 │               └── index.html  # Web UI
+├── trmnl/                      # TRMNL e-ink plugin
+│   ├── src/
+│   │   ├── full.liquid         # Full screen layout
+│   │   ├── half_horizontal.liquid
+│   │   ├── half_vertical.liquid
+│   │   ├── quadrant.liquid     # Quarter screen layout
+│   │   ├── shared.liquid       # Shared components
+│   │   └── settings.yml        # Plugin settings
+│   ├── .trmnlp.yml            # Local dev config
+│   └── README.md              # TRMNL setup guide
 ├── config.yaml                 # Configuration file
 ├── requirements.txt            # Python dependencies
 └── README.md

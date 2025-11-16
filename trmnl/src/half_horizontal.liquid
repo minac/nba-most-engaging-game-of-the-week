@@ -1,0 +1,188 @@
+<div class="view view--half-horizontal">
+  <div class="layout layout--column">
+
+    {% if game %}
+
+      <!-- Header -->
+      <div class="header">
+        <h2>🏀 BEST GAME</h2>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+
+        <!-- Date -->
+        <div class="game-date">{{ game.game_date }}</div>
+
+        <!-- Score -->
+        <div class="game-score">
+          <div class="team">
+            <span class="team__abbr">{{ game.away_team.abbr }}</span>
+            <span class="team__score">{{ game.away_team.score }}</span>
+          </div>
+          <span class="vs">@</span>
+          <div class="team">
+            <span class="team__abbr">{{ game.home_team.abbr }}</span>
+            <span class="team__score">{{ game.home_team.score }}</span>
+          </div>
+        </div>
+
+        <!-- Engagement Score -->
+        <div class="engagement">
+          <span class="engagement__label">Score:</span>
+          <span class="engagement__value">{{ score }}</span>
+        </div>
+
+        <!-- Key Stats -->
+        <div class="stats">
+          <div class="stat">
+            <span class="stat__label">Lead Changes:</span>
+            <span class="stat__value">{{ breakdown.lead_changes.count }}</span>
+          </div>
+          <div class="stat">
+            <span class="stat__label">Margin:</span>
+            <span class="stat__value">{{ breakdown.close_game.margin }} pts</span>
+          </div>
+          {% if breakdown.favorite_team.has_favorite %}
+          <div class="stat stat--highlight">
+            <span>⭐ Favorite Team</span>
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+
+    {% else %}
+
+      <!-- Empty State -->
+      <div class="empty">
+        <div class="empty__icon">🏀</div>
+        <div class="empty__message">No games</div>
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
+<style>
+  .view--half-horizontal {
+    padding: 15px;
+    height: 100%;
+  }
+
+  .header h2 {
+    font-size: 1.3rem;
+    font-weight: bold;
+    margin: 0 0 1rem 0;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #000;
+    text-align: center;
+  }
+
+  .game-date {
+    text-align: center;
+    font-size: 0.85rem;
+    opacity: 0.7;
+    margin-bottom: 1rem;
+  }
+
+  .game-score {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1.5rem;
+    margin: 1.5rem 0;
+  }
+
+  .team {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .team__abbr {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .team__score {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .vs {
+    font-size: 1.2rem;
+    opacity: 0.5;
+  }
+
+  .engagement {
+    text-align: center;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 2px solid #000;
+    border-radius: 6px;
+    background: #f5f5f5;
+  }
+
+  .engagement__label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-right: 0.5rem;
+  }
+
+  .engagement__value {
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+
+  .stats {
+    margin-top: 1rem;
+  }
+
+  .stat {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid #ddd;
+    font-size: 0.9rem;
+  }
+
+  .stat:last-child {
+    border-bottom: none;
+  }
+
+  .stat--highlight {
+    background: #f0f0f0;
+    font-weight: 600;
+    justify-content: center;
+  }
+
+  .stat__label {
+    font-weight: 500;
+  }
+
+  .stat__value {
+    font-weight: 600;
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .empty__icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty__message {
+    font-size: 1.2rem;
+    font-weight: 600;
+    opacity: 0.6;
+  }
+</style>

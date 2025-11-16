@@ -1,0 +1,235 @@
+<div class="view view--full">
+  <div class="layout layout--column">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="header__title">
+        <h1>🏀 MOST ENGAGING GAME</h1>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content flex-grow">
+
+      {% if game %}
+
+        <!-- Game Date -->
+        <div class="text-center mb-4">
+          <p class="text-muted">{{ game.game_date }}</p>
+        </div>
+
+        <!-- Teams and Score -->
+        <div class="game-score">
+          <div class="team team--away">
+            <div class="team__name">{{ game.away_team.name }}</div>
+            <div class="team__abbr text-muted">{{ game.away_team.abbr }}</div>
+            <div class="team__score">{{ game.away_team.score }}</div>
+          </div>
+
+          <div class="vs">
+            <span>@</span>
+          </div>
+
+          <div class="team team--home">
+            <div class="team__name">{{ game.home_team.name }}</div>
+            <div class="team__abbr text-muted">{{ game.home_team.abbr }}</div>
+            <div class="team__score">{{ game.home_team.score }}</div>
+          </div>
+        </div>
+
+        <!-- Engagement Score -->
+        <div class="engagement-score">
+          <div class="score-label">ENGAGEMENT SCORE</div>
+          <div class="score-value">{{ score }}</div>
+        </div>
+
+        <!-- Score Breakdown -->
+        <div class="breakdown">
+          <div class="breakdown__row">
+            <span>Lead Changes</span>
+            <span>{{ breakdown.lead_changes.count }} ({{ breakdown.lead_changes.points }} pts)</span>
+          </div>
+          <div class="breakdown__row">
+            <span>Top 5 Teams</span>
+            <span>{{ breakdown.top5_teams.count }} ({{ breakdown.top5_teams.points }} pts)</span>
+          </div>
+          <div class="breakdown__row">
+            <span>Final Margin</span>
+            <span>{{ breakdown.close_game.margin }} pts ({{ breakdown.close_game.points }} pts)</span>
+          </div>
+          <div class="breakdown__row">
+            <span>Star Players</span>
+            <span>{{ breakdown.star_power.count }} ({{ breakdown.star_power.points }} pts)</span>
+          </div>
+          {% if breakdown.favorite_team.has_favorite %}
+          <div class="breakdown__row breakdown__row--highlight">
+            <span>⭐ Favorite Team Bonus</span>
+            <span>{{ breakdown.favorite_team.points }} pts</span>
+          </div>
+          {% endif %}
+        </div>
+
+      {% else %}
+
+        <!-- No Game Found -->
+        <div class="empty-state">
+          <div class="empty-state__icon">🏀</div>
+          <div class="empty-state__message">No games found</div>
+          <div class="empty-state__details text-muted">
+            {{ error_message | default: "Check back later for NBA game recommendations" }}
+          </div>
+        </div>
+
+      {% endif %}
+
+    </div>
+
+    <!-- Footer -->
+    <div class="footer text-center text-muted">
+      <p>Updated {{ updated_at | default: "recently" }}</p>
+    </div>
+
+  </div>
+</div>
+
+<style>
+  .view--full {
+    padding: 20px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .header__title h1 {
+    font-size: 2rem;
+    font-weight: bold;
+    text-align: center;
+    margin: 0 0 1.5rem 0;
+    padding-bottom: 1rem;
+    border-bottom: 3px solid #000;
+  }
+
+  .game-score {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin: 2rem 0;
+    gap: 2rem;
+  }
+
+  .team {
+    text-align: center;
+    flex: 1;
+  }
+
+  .team__name {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+  }
+
+  .team__abbr {
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .team__score {
+    font-size: 3rem;
+    font-weight: bold;
+    margin-top: 0.5rem;
+  }
+
+  .vs {
+    font-size: 1.5rem;
+    opacity: 0.5;
+    font-weight: bold;
+  }
+
+  .engagement-score {
+    text-align: center;
+    padding: 1.5rem;
+    margin: 2rem 0;
+    border: 3px solid #000;
+    border-radius: 8px;
+    background: #f5f5f5;
+  }
+
+  .score-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.5rem;
+  }
+
+  .score-value {
+    font-size: 3rem;
+    font-weight: bold;
+  }
+
+  .breakdown {
+    margin: 1.5rem 0;
+  }
+
+  .breakdown__row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.8rem 1rem;
+    border-bottom: 1px solid #ddd;
+    font-size: 1rem;
+  }
+
+  .breakdown__row:last-child {
+    border-bottom: none;
+  }
+
+  .breakdown__row--highlight {
+    background: #f0f0f0;
+    font-weight: 600;
+  }
+
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    text-align: center;
+  }
+
+  .empty-state__icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state__message {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty-state__details {
+    font-size: 1rem;
+  }
+
+  .footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .text-muted {
+    opacity: 0.6;
+  }
+
+  .mb-4 {
+    margin-bottom: 1.5rem;
+  }
+
+  .flex-grow {
+    flex-grow: 1;
+  }
+</style>

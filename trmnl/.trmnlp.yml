@@ -1,0 +1,62 @@
+# TRMNL Plugin Development Configuration
+# Used when running `trmnlp serve` for local development
+
+# Plugin metadata
+plugin_name: NBA Game Recommender
+author: Your Name
+version: 1.0.0
+
+# Watch these paths for changes (auto-reload)
+watch:
+  - src/**/*.liquid
+  - src/settings.yml
+
+# Timezone for time-based variables
+timezone: America/New_York
+
+# Sample data for local development
+# These variables will be available in your templates when running locally
+variables:
+  game:
+    game_date: "2024-01-15"
+    away_team:
+      name: "Los Angeles Lakers"
+      abbr: "LAL"
+      score: 118
+    home_team:
+      name: "Boston Celtics"
+      abbr: "BOS"
+      score: 115
+
+  score: "425.5"
+
+  breakdown:
+    lead_changes:
+      count: 12
+      points: "120.0"
+    top5_teams:
+      count: 2
+      points: "100.0"
+    close_game:
+      margin: 3
+      points: "100.0"
+    total_points:
+      total: 233
+      threshold_met: true
+    star_power:
+      count: 4
+      points: "80.0"
+    favorite_team:
+      has_favorite: true
+      points: "75.0"
+
+  updated_at: "02:30 PM"
+
+# Alternative sample data for testing empty state
+# Uncomment to test the "no games" scenario
+# variables:
+#   game: null
+#   score: "0"
+#   breakdown: {}
+#   error_message: "No NBA games found in the past 7 days"
+#   updated_at: "02:30 PM"

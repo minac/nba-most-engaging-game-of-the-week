@@ -1,0 +1,122 @@
+<!-- Shared styles and components for TRMNL NBA Game Recommender Plugin -->
+
+<!-- Shared Basketball Icon Component -->
+{% template basketball_icon %}
+<div class="basketball-icon">🏀</div>
+{% endtemplate %}
+
+<!-- Shared Team Score Component -->
+{% template team_score, team_name: "", team_abbr: "", score: 0 %}
+<div class="team-score-component">
+  <div class="team-name">{{ team_name }}</div>
+  <div class="team-abbr">{{ team_abbr }}</div>
+  <div class="score">{{ score }}</div>
+</div>
+{% endtemplate %}
+
+<!-- Shared Empty State Component -->
+{% template empty_state, message: "No data available" %}
+<div class="empty-state-component">
+  <div class="empty-icon">🏀</div>
+  <div class="empty-message">{{ message }}</div>
+</div>
+{% endtemplate %}
+
+<!-- Global Shared Styles -->
+<style>
+  /* Reset and Base Styles */
+  * {
+    box-sizing: border-box;
+  }
+
+  .layout {
+    display: flex;
+    width: 100%;
+    height: 100%;
+  }
+
+  .layout--column {
+    flex-direction: column;
+  }
+
+  .layout--row {
+    flex-direction: row;
+  }
+
+  /* Typography Utilities */
+  .text-center {
+    text-align: center;
+  }
+
+  .text-left {
+    text-align: left;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .text-bold {
+    font-weight: bold;
+  }
+
+  .text-muted {
+    opacity: 0.6;
+  }
+
+  /* Spacing Utilities */
+  .mt-1 { margin-top: 0.5rem; }
+  .mt-2 { margin-top: 1rem; }
+  .mt-3 { margin-top: 1.5rem; }
+  .mb-1 { margin-bottom: 0.5rem; }
+  .mb-2 { margin-bottom: 1rem; }
+  .mb-3 { margin-bottom: 1.5rem; }
+  .p-1 { padding: 0.5rem; }
+  .p-2 { padding: 1rem; }
+  .p-3 { padding: 1.5rem; }
+
+  /* Component Styles */
+  .basketball-icon {
+    font-size: 2rem;
+    text-align: center;
+  }
+
+  .team-score-component {
+    text-align: center;
+  }
+
+  .team-score-component .team-name {
+    font-weight: 600;
+    margin-bottom: 0.25rem;
+  }
+
+  .team-score-component .team-abbr {
+    font-size: 0.9em;
+    opacity: 0.7;
+    margin-bottom: 0.5rem;
+  }
+
+  .team-score-component .score {
+    font-size: 2em;
+    font-weight: bold;
+  }
+
+  .empty-state-component {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+  }
+
+  .empty-state-component .empty-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+
+  .empty-state-component .empty-message {
+    font-size: 1.2rem;
+    font-weight: 600;
+    opacity: 0.6;
+  }
+</style>

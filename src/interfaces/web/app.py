@@ -3,6 +3,8 @@
 import sys
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify
+from datetime import datetime
+import os
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
@@ -59,6 +61,95 @@ def recommend():
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/trmnl', methods=['GET'])
+def trmnl_webhook():
+    """
+    TRMNL webhook endpoint that returns game data in TRMNL-compatible format.
+
+    Query parameters:
+    - days: Number of days to look back (default: 7)
+    - team: Favorite team abbreviation (optional)
+    """
+    try:
+        days = int(request.args.get('days', 7))
+        favorite_team = request.args.get('team', '').upper() or None
+
+        if days < 1 or days > 14:
+            days = 7
+
+        # Get the best game
+        result = recommender.get_best_game(days=days, favorite_team=favorite_team)
+
+        # Prepare TRMNL-compatible response with merge_variables
+        if result:
+            game_data = result.get('game', {})
+            breakdown = result.get('breakdown', {})
+            score = result.get('score', 0)
+
+            # Format score to 1 decimal place
+            formatted_score = f"{score:.1f}"
+
+            # Format breakdown data for display
+            formatted_breakdown = {
+                'lead_changes': {
+                    'count': breakdown.get('lead_changes', {}).get('count', 0),
+                    'points': f"{breakdown.get('lead_changes', {}).get('points', 0):.1f}"
+                },
+                'top5_teams': {
+                    'count': breakdown.get('top5_teams', {}).get('count', 0),
+                    'points': f"{breakdown.get('top5_teams', {}).get('points', 0):.1f}"
+                },
+                'close_game': {
+                    'margin': breakdown.get('close_game', {}).get('margin', 0),
+                    'points': f"{breakdown.get('close_game', {}).get('points', 0):.1f}"
+                },
+                'total_points': {
+                    'total': breakdown.get('total_points', {}).get('total', 0),
+                    'threshold_met': breakdown.get('total_points', {}).get('threshold_met', False)
+                },
+                'star_power': {
+                    'count': breakdown.get('star_power', {}).get('count', 0),
+                    'points': f"{breakdown.get('star_power', {}).get('points', 0):.1f}"
+                },
+                'favorite_team': {
+                    'has_favorite': breakdown.get('favorite_team', {}).get('has_favorite', False),
+                    'points': f"{breakdown.get('favorite_team', {}).get('points', 0):.1f}"
+                }
+            }
+
+            merge_variables = {
+                'game': game_data,
+                'score': formatted_score,
+                'breakdown': formatted_breakdown,
+                'updated_at': datetime.now().strftime('%I:%M %p')
+            }
+        else:
+            # No games found - return empty state
+            merge_variables = {
+                'game': None,
+                'score': '0',
+                'breakdown': {},
+                'error_message': 'No NBA games found in the past {} days'.format(days),
+                'updated_at': datetime.now().strftime('%I:%M %p')
+            }
+
+        return jsonify({
+            'merge_variables': merge_variables
+        })
+
+    except Exception as e:
+        # Return error state for TRMNL display
+        return jsonify({
+            'merge_variables': {
+                'game': None,
+                'score': '0',
+                'breakdown': {},
+                'error_message': f'Error: {str(e)}',
+                'updated_at': datetime.now().strftime('%I:%M %p')
+            }
+        }), 500
 
 
 def main():
