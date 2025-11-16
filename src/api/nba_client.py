@@ -1,7 +1,7 @@
 """NBA API Client for fetching game data."""
 import requests
 from datetime import datetime, timedelta
-from typing import List, Dict, Optional
+from typing import List, Dict, Optional, Set
 import time
 
 
@@ -17,21 +17,18 @@ class NBAClient:
         'Origin': 'https://stats.nba.com'
     }
 
-    # Top 5 teams (as of 2024-2025 season - can be updated)
-    TOP_5_TEAMS = {'BOS', 'DEN', 'MIL', 'PHX', 'LAL'}
-
-    # Star players (simplified - can be expanded)
-    STAR_PLAYERS = {
-        'LeBron James', 'Stephen Curry', 'Kevin Durant', 'Giannis Antetokounmpo',
-        'Luka Doncic', 'Nikola Jokic', 'Joel Embiid', 'Jayson Tatum',
-        'Damian Lillard', 'Anthony Davis', 'Devin Booker', 'Kawhi Leonard',
-        'Jimmy Butler', 'Donovan Mitchell', 'Trae Young', 'Kyrie Irving'
-    }
+    # Cache duration in seconds (24 hours)
+    CACHE_DURATION = 86400
 
     def __init__(self):
         """Initialize the NBA client."""
         self.session = requests.Session()
         self.session.headers.update(self.HEADERS)
+
+        # Cache for dynamic data
+        self._top_teams_cache: Optional[Set[str]] = None
+        self._star_players_cache: Optional[Set[str]] = None
+        self._cache_timestamp: Optional[datetime] = None
 
     def get_games_last_n_days(self, days: int = 7) -> List[Dict]:
         """
@@ -233,6 +230,134 @@ class NBAClient:
         except Exception as e:
             print(f"Error fetching box score for {game_id}: {e}")
             return 0
+
+    def _is_cache_valid(self) -> bool:
+        """Check if the cache is still valid."""
+        if self._cache_timestamp is None:
+            return False
+        elapsed = (datetime.now() - self._cache_timestamp).total_seconds()
+        return elapsed < self.CACHE_DURATION
+
+    def _fetch_top_teams(self) -> Set[str]:
+        """
+        Fetch current top 5 teams by win percentage from standings.
+
+        Returns:
+            Set of team abbreviations for top 5 teams
+        """
+        try:
+            # Get current season (e.g., "2024-25")
+            now = datetime.now()
+            if now.month >= 10:  # Season starts in October
+                season = f"{now.year}-{str(now.year + 1)[-2:]}"
+            else:
+                season = f"{now.year - 1}-{str(now.year)[-2:]}"
+
+            url = f"{self.BASE_URL}/leaguestandingsv3"
+            params = {
+                'LeagueID': '00',
+                'Season': season,
+                'SeasonType': 'Regular Season'
+            }
+
+            response = self.session.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+
+            # Extract standings data
+            standings = data.get('resultSets', [{}])[0].get('rowSet', [])
+            headers = data.get('resultSets', [{}])[0].get('headers', [])
+
+            # Find indices for team abbreviation and win percentage
+            team_abbr_idx = headers.index('TeamSlug') if 'TeamSlug' in headers else None
+            win_pct_idx = headers.index('WinPCT') if 'WinPCT' in headers else None
+
+            if team_abbr_idx is None or win_pct_idx is None:
+                raise ValueError("Required fields not found in standings data")
+
+            # Sort by win percentage and get top 5
+            sorted_teams = sorted(standings, key=lambda x: float(x[win_pct_idx]), reverse=True)
+            top_5 = {team[team_abbr_idx].upper() for team in sorted_teams[:5]}
+
+            print(f"Dynamically fetched top 5 teams: {top_5}")
+            return top_5
+
+        except Exception as e:
+            print(f"Error fetching top teams: {e}")
+            # Fallback to a reasonable default
+            return {'BOS', 'DEN', 'MIL', 'PHX', 'LAL'}
+
+    def _fetch_star_players(self) -> Set[str]:
+        """
+        Fetch current star players based on league leaders in points per game.
+
+        Returns:
+            Set of star player names (top 30 scorers)
+        """
+        try:
+            # Get current season
+            now = datetime.now()
+            if now.month >= 10:
+                season = f"{now.year}-{str(now.year + 1)[-2:]}"
+            else:
+                season = f"{now.year - 1}-{str(now.year)[-2:]}"
+
+            url = f"{self.BASE_URL}/leagueleaders"
+            params = {
+                'LeagueID': '00',
+                'PerMode': 'PerGame',
+                'Scope': 'S',
+                'Season': season,
+                'SeasonType': 'Regular Season',
+                'StatCategory': 'PTS'
+            }
+
+            response = self.session.get(url, params=params, timeout=10)
+            response.raise_for_status()
+            data = response.json()
+
+            # Extract player data
+            players = data.get('resultSet', {}).get('rowSet', [])
+            headers = data.get('resultSet', {}).get('headers', [])
+
+            # Find player name index
+            player_idx = headers.index('PLAYER') if 'PLAYER' in headers else None
+
+            if player_idx is None:
+                raise ValueError("Player field not found in leaders data")
+
+            # Get top 30 scorers
+            star_players = {player[player_idx] for player in players[:30]}
+
+            print(f"Dynamically fetched {len(star_players)} star players")
+            return star_players
+
+        except Exception as e:
+            print(f"Error fetching star players: {e}")
+            # Fallback to a reasonable default
+            return {
+                'LeBron James', 'Stephen Curry', 'Kevin Durant', 'Giannis Antetokounmpo',
+                'Luka Doncic', 'Nikola Jokic', 'Joel Embiid', 'Jayson Tatum',
+                'Damian Lillard', 'Anthony Davis', 'Devin Booker', 'Kawhi Leonard',
+                'Jimmy Butler', 'Donovan Mitchell', 'Trae Young', 'Kyrie Irving'
+            }
+
+    @property
+    def TOP_5_TEAMS(self) -> Set[str]:
+        """Get top 5 teams (cached)."""
+        if not self._is_cache_valid() or self._top_teams_cache is None:
+            self._top_teams_cache = self._fetch_top_teams()
+            self._cache_timestamp = datetime.now()
+        return self._top_teams_cache
+
+    @property
+    def STAR_PLAYERS(self) -> Set[str]:
+        """Get star players (cached)."""
+        if not self._is_cache_valid() or self._star_players_cache is None:
+            self._star_players_cache = self._fetch_star_players()
+            if self._cache_timestamp is None:
+                self._cache_timestamp = datetime.now()
+        return self._star_players_cache
 
     def is_top5_team(self, team_abbr: str) -> bool:
         """Check if a team is in the top 5."""
