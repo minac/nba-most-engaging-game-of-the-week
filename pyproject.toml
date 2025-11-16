@@ -1,0 +1,17 @@
+[project]
+name = "nba-game-recommender"
+version = "0.1.0"
+description = "Find the most engaging NBA game to watch from the past week"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31.0",
+    "flask>=3.0.0",
+    "pyyaml>=6.0",
+    "python-dateutil>=2.8.2",
+    "gunicorn>=21.2.0",
+]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

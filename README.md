@@ -25,7 +25,7 @@ cd nba-most-engaging-game-of-the-week
 
 2. Install dependencies:
 ```bash
-pip install -r requirements.txt
+uv sync
 ```
 
 3. Configure your preferences (optional):
@@ -39,28 +39,28 @@ pip install -r requirements.txt
 
 Find the best game from the last 7 days:
 ```bash
-python src/interfaces/cli.py
+uv run python src/interfaces/cli.py
 ```
 
 Options:
 ```bash
-python src/interfaces/cli.py --help
+uv run python src/interfaces/cli.py --help
 
 # Look back 3 days
-python src/interfaces/cli.py -d 3
+uv run python src/interfaces/cli.py -d 3
 
 # Set favorite team
-python src/interfaces/cli.py -t LAL
+uv run python src/interfaces/cli.py -t LAL
 
 # Show all games ranked
-python src/interfaces/cli.py --all
+uv run python src/interfaces/cli.py --all
 ```
 
 ### REST API
 
 Start the API server:
 ```bash
-python src/interfaces/api_server.py
+uv run python src/interfaces/api_server.py
 ```
 
 Endpoints:
@@ -78,7 +78,7 @@ curl "http://localhost:5000/api/best-game?days=7&team=BOS"
 
 Start the web server:
 ```bash
-python src/interfaces/web/app.py
+uv run python src/interfaces/web/app.py
 ```
 
 Then open your browser to `http://localhost:8080`
@@ -144,7 +144,7 @@ nba-most-engaging-game-of-the-week/
 │           └── templates/
 │               └── index.html  # Web UI
 ├── config.yaml                 # Configuration file
-├── requirements.txt            # Python dependencies
+├── pyproject.toml              # Python dependencies (uv)
 └── README.md
 ```
 

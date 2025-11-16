@@ -121,21 +121,24 @@ When making changes:
 - **src/core/game_scorer.py**: Complete scoring algorithm implementation
 - **src/core/recommender.py**: Main orchestration logic
 - **src/api/nba_client.py**: NBA API integration
-- **requirements.txt**: Python dependencies
+- **pyproject.toml**: Python dependencies (uv)
 
 ## Working with the Codebase
 
 ### Running the Application
 
 ```bash
+# Install dependencies first
+uv sync
+
 # CLI
-python src/interfaces/cli.py
+uv run python src/interfaces/cli.py
 
 # API Server
-python src/interfaces/api_server.py
+uv run python src/interfaces/api_server.py
 
 # Web Interface
-python src/interfaces/web/app.py
+uv run python src/interfaces/web/app.py
 ```
 
 ### Common Tasks
@@ -198,7 +201,7 @@ When testing or debugging:
 - **pyyaml**: Configuration file parsing
 - **python-dateutil**: Date manipulation
 
-All in `requirements.txt` - install via `pip install -r requirements.txt`
+All in `pyproject.toml` - install via `uv sync`
 
 ## Future Enhancement Ideas
 
