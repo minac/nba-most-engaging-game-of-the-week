@@ -95,16 +95,22 @@ Display game recommendations on your TRMNL e-ink device!
 4. Copy the markup from `trmnl/src/full.liquid` (or other layouts)
 5. Add to your TRMNL playlist
 
+**How It Works**:
+- Your TRMNL device automatically fetches the best game every hour
+- Displays team scores, engagement score, and game breakdown
+- Updates with the most exciting games based on the scoring algorithm
+- Shows a favorite team indicator when your team plays
+
 **Endpoints**:
 - `GET /api/trmnl?days=7&team=LAL` - TRMNL-compatible webhook
 
 **Layouts Available**:
-- Full screen (`full.liquid`)
-- Half horizontal (`half_horizontal.liquid`)
-- Half vertical (`half_vertical.liquid`)
-- Quadrant (`quadrant.liquid`)
+- Full screen (`full.liquid`) - Complete game details and breakdown
+- Half horizontal (`half_horizontal.liquid`) - Compact horizontal layout
+- Half vertical (`half_vertical.liquid`) - Vertical optimized display
+- Quadrant (`quadrant.liquid`) - Minimal quarter-screen view
 
-See [trmnl/README.md](trmnl/README.md) for complete setup instructions and customization options.
+See [trmnl/README.md](trmnl/README.md) for complete setup instructions, usage guide, and customization options.
 
 ## Configuration
 

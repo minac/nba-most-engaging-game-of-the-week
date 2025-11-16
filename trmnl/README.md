@@ -53,6 +53,70 @@ This plugin shows NBA game recommendations on your TRMNL device with engagement 
    - Add the plugin to your TRMNL playlist
    - Your device will start displaying NBA game recommendations!
 
+## How to Use
+
+Once your plugin is set up and added to your TRMNL playlist, it will automatically:
+
+1. **Fetch game data** from your deployed API endpoint every hour (or at your configured refresh interval)
+2. **Display the most engaging game** from the past 7 days (or your configured lookback period)
+3. **Show detailed information** including:
+   - Team names and final scores
+   - Overall engagement score
+   - Lead changes, final margin, star players
+   - Favorite team indicator (if configured)
+4. **Auto-refresh** to always show the latest recommendations
+
+### Daily Usage
+
+Your TRMNL device will show:
+- **During NBA season**: The most exciting recent game based on the scoring algorithm
+- **Off-season**: An empty state with a message indicating no games were found
+- **After big games**: Updated scores highlighting the best matchups
+
+### Best Practices
+
+- **Set your favorite team** in the URL to prioritize games featuring your team
+- **Adjust the lookback period** based on your preferences:
+  - `days=3` - Only very recent games
+  - `days=7` - Full week (recommended)
+  - `days=14` - Two weeks for catching up
+- **Choose the right layout** for your TRMNL configuration:
+  - Full screen for dedicated NBA tracking
+  - Half/quadrant for mixed content playlists
+- **Refresh interval**: 1 hour (3600 seconds) is recommended to balance freshness with API usage
+
+### What You'll See
+
+The plugin displays:
+- **Game matchup**: Team abbreviations and full names
+- **Final scores**: Large, easy-to-read numbers
+- **Engagement score**: Overall entertainment rating (higher is better)
+- **Score breakdown**: How the engagement score was calculated
+  - Lead changes (more is better)
+  - Final margin (closer is better)
+  - Star player count
+  - Top 5 team participation
+  - Favorite team bonus indicator
+- **Last updated time**: Confirms data freshness
+
+### Example Display
+
+```
+🏀 MOST ENGAGING GAME
+2024-01-15
+
+LAL     @     BOS
+118           115
+
+ENGAGEMENT SCORE
+     425.5
+
+Lead Changes: 12 (120.0 pts)
+Final Margin: 3 pts (100.0 pts)
+Star Players: 4 (80.0 pts)
+⭐ Favorite Team Bonus
+```
+
 ### Option 2: Using trmnlp Development Server
 
 For local development and testing:
