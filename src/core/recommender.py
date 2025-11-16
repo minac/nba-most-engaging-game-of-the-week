@@ -183,6 +183,7 @@ DETAILED SCORING EXPLANATION:
 2. TOP 5 TEAMS (Bonus: {config['top5_team_bonus']} pts per team)
    Teams in game: {breakdown['top5_teams']['count']}
    Calculation: {breakdown['top5_teams']['count']} × {config['top5_team_bonus']} = {breakdown['top5_teams']['points']:.1f} points
+   {f"Current Top 5 Teams: {', '.join(sorted(self.nba_client.TOP_5_TEAMS))}" if breakdown['top5_teams']['count'] == 0 else ''}
 
 3. GAME CLOSENESS (Max Bonus: {config['close_game_bonus']} pts)
    Final Margin: {breakdown['close_game']['margin']} points
@@ -202,6 +203,7 @@ DETAILED SCORING EXPLANATION:
 5. STAR POWER (Weight: {config['star_power_weight']} pts per star)
    Star Players: {breakdown['star_power']['count']}
    Calculation: {breakdown['star_power']['count']} × {config['star_power_weight']} = {breakdown['star_power']['points']:.1f} points
+   {f"Current Star Players: {', '.join(sorted(self.nba_client.STAR_PLAYERS))}" if breakdown['star_power']['count'] == 0 else ''}
 
 6. FAVORITE TEAM (Bonus: {config['favorite_team_bonus']} pts)
    Has Favorite Team: {'Yes' if breakdown['favorite_team']['has_favorite'] else 'No'}
