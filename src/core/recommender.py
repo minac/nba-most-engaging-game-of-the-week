@@ -234,8 +234,6 @@ FINAL SCORE: {score:.2f}
 {away['name']} @ {home['name']}
 Date: {game['game_date']}
 
-Final Score: {away['abbr']} {away['score']} - {home['score']} {home['abbr']}
-
 {'='*60}
 ENGAGEMENT SCORE: {score:.2f}
 {'='*60}
@@ -243,7 +241,7 @@ ENGAGEMENT SCORE: {score:.2f}
 Score Breakdown:
   • Lead Changes: {breakdown['lead_changes']['count']} ({breakdown['lead_changes']['points']:.1f} pts)
   • Top 5 Teams: {breakdown['top5_teams']['count']} team(s) ({breakdown['top5_teams']['points']:.1f} pts)
-  • Game Closeness: {breakdown['close_game']['margin']} pt margin ({breakdown['close_game']['points']:.1f} pts)
+  • Close Game: ({breakdown['close_game']['points']:.1f} pts)
   • Total Points: {breakdown['total_points']['total']} (threshold: {breakdown['total_points']['threshold_met']})
   • Star Players: {breakdown['star_power']['count']} ({breakdown['star_power']['points']:.1f} pts)
   • Favorite Team: {'Yes' if breakdown['favorite_team']['has_favorite'] else 'No'} ({breakdown['favorite_team']['points']:.1f} pts)
