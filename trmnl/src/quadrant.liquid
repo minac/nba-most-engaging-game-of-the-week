@@ -1,0 +1,136 @@
+<div class="view view--quadrant">
+  <div class="layout layout--column">
+
+    {% if game %}
+
+      <!-- Icon and Title -->
+      <div class="header">
+        <div class="icon">🏀</div>
+      </div>
+
+      <!-- Teams and Scores -->
+      <div class="matchup">
+        <div class="matchup-row">
+          <span class="team-abbr">{{ game.away_team.abbr }}</span>
+          <span class="score">{{ game.away_team.score }}</span>
+        </div>
+        <div class="matchup-row">
+          <span class="team-abbr">{{ game.home_team.abbr }}</span>
+          <span class="score">{{ game.home_team.score }}</span>
+        </div>
+      </div>
+
+      <!-- Engagement Score -->
+      <div class="engagement-compact">
+        <div class="eng-value">{{ score }}</div>
+        {% if breakdown.favorite_team.has_favorite %}
+        <div class="fav-star">⭐</div>
+        {% endif %}
+      </div>
+
+      <!-- Margin -->
+      <div class="margin-info">
+        {{ breakdown.close_game.margin }} pt margin
+      </div>
+
+    {% else %}
+
+      <!-- Empty State -->
+      <div class="empty-compact">
+        <div class="empty-icon">🏀</div>
+        <div class="empty-msg">No Games</div>
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
+<style>
+  .view--quadrant {
+    padding: 8px;
+    height: 100%;
+    font-size: 0.8rem;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .icon {
+    font-size: 1.5rem;
+  }
+
+  .matchup {
+    margin: 0.5rem 0;
+  }
+
+  .matchup-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.5rem;
+    margin-bottom: 0.3rem;
+    background: #f5f5f5;
+    border-radius: 3px;
+  }
+
+  .team-abbr {
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .score {
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+
+  .engagement-compact {
+    text-align: center;
+    padding: 0.6rem;
+    margin: 0.5rem 0;
+    border: 2px solid #000;
+    border-radius: 4px;
+    background: #f5f5f5;
+    position: relative;
+  }
+
+  .eng-value {
+    font-size: 1.3rem;
+    font-weight: bold;
+  }
+
+  .fav-star {
+    position: absolute;
+    top: 2px;
+    right: 4px;
+    font-size: 0.9rem;
+  }
+
+  .margin-info {
+    text-align: center;
+    font-size: 0.7rem;
+    opacity: 0.7;
+    margin-top: 0.3rem;
+  }
+
+  .empty-compact {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .empty-icon {
+    font-size: 2rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .empty-msg {
+    font-size: 0.8rem;
+    font-weight: 600;
+    opacity: 0.6;
+  }
+</style>

@@ -1,0 +1,210 @@
+<div class="view view--half-vertical">
+  <div class="layout layout--column">
+
+    {% if game %}
+
+      <!-- Header -->
+      <div class="header">
+        <h2>🏀</h2>
+        <div class="subtitle">BEST GAME</div>
+      </div>
+
+      <!-- Content -->
+      <div class="content">
+
+        <!-- Teams -->
+        <div class="teams">
+          <div class="team-item">
+            <div class="team-abbr">{{ game.away_team.abbr }}</div>
+            <div class="team-score">{{ game.away_team.score }}</div>
+          </div>
+          <div class="separator">@</div>
+          <div class="team-item">
+            <div class="team-abbr">{{ game.home_team.abbr }}</div>
+            <div class="team-score">{{ game.home_team.score }}</div>
+          </div>
+        </div>
+
+        <!-- Date -->
+        <div class="date">{{ game.game_date }}</div>
+
+        <!-- Engagement Score -->
+        <div class="score-box">
+          <div class="score-label">SCORE</div>
+          <div class="score-number">{{ score }}</div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="quick-stat">
+            <div class="quick-stat__value">{{ breakdown.lead_changes.count }}</div>
+            <div class="quick-stat__label">Lead Changes</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat__value">{{ breakdown.close_game.margin }}</div>
+            <div class="quick-stat__label">Margin (pts)</div>
+          </div>
+        </div>
+
+        {% if breakdown.favorite_team.has_favorite %}
+        <div class="favorite-badge">
+          ⭐ Favorite Team
+        </div>
+        {% endif %}
+
+      </div>
+
+    {% else %}
+
+      <!-- Empty State -->
+      <div class="empty">
+        <div class="empty__icon">🏀</div>
+        <div class="empty__text">No Games</div>
+      </div>
+
+    {% endif %}
+
+  </div>
+</div>
+
+<style>
+  .view--half-vertical {
+    padding: 12px;
+    height: 100%;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 1rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 2px solid #000;
+  }
+
+  .header h2 {
+    font-size: 2rem;
+    margin: 0;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-top: 0.3rem;
+    letter-spacing: 0.05em;
+  }
+
+  .teams {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .team-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background: #f5f5f5;
+    border-radius: 4px;
+  }
+
+  .team-abbr {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+
+  .team-score {
+    font-size: 1.8rem;
+    font-weight: bold;
+  }
+
+  .separator {
+    text-align: center;
+    opacity: 0.5;
+    font-size: 0.9rem;
+    margin: 0.3rem 0;
+  }
+
+  .date {
+    text-align: center;
+    font-size: 0.8rem;
+    opacity: 0.7;
+    margin: 1rem 0;
+  }
+
+  .score-box {
+    text-align: center;
+    padding: 1rem;
+    margin: 1rem 0;
+    border: 2px solid #000;
+    border-radius: 6px;
+    background: #f5f5f5;
+  }
+
+  .score-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.3rem;
+  }
+
+  .score-number {
+    font-size: 2rem;
+    font-weight: bold;
+  }
+
+  .quick-stats {
+    display: flex;
+    gap: 0.5rem;
+    margin: 1rem 0;
+  }
+
+  .quick-stat {
+    flex: 1;
+    text-align: center;
+    padding: 0.8rem 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+
+  .quick-stat__value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 0.2rem;
+  }
+
+  .quick-stat__label {
+    font-size: 0.7rem;
+    opacity: 0.7;
+    line-height: 1.2;
+  }
+
+  .favorite-badge {
+    text-align: center;
+    padding: 0.6rem;
+    margin-top: 1rem;
+    background: #f0f0f0;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 0.85rem;
+  }
+
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+
+  .empty__icon {
+    font-size: 3rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .empty__text {
+    font-size: 1rem;
+    font-weight: 600;
+    opacity: 0.6;
+  }
+</style>
