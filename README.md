@@ -4,6 +4,27 @@ Finds the most engaging NBA game from the past week using real NBA API data. Sco
 
 ## Quick Start
 
+- **Modular Architecture**: Run as CLI, REST API, Web Application, or TRMNL E-ink Display
+- **TRMNL Integration**: Display on your e-ink dashboard with multiple layout options
+- **Smart Scoring Algorithm**: Evaluates games based on:
+  - Lead changes (more exciting)
+  - Top 5 team participation
+  - Final margin (closer games score higher)
+  - Minimum 200 points threshold
+  - Star player participation
+  - Favorite team bonus
+- **Configurable**: Customize scoring weights and preferences via `config.yaml`
+- **Real NBA Data**: Fetches actual game data from the NBA Stats API
+
+## Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/minac/nba-most-engaging-game-of-the-week.git
+cd nba-most-engaging-game-of-the-week
+```
+
+2. Install dependencies:
 ```bash
 # Install
 uv sync
