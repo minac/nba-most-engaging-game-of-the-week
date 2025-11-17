@@ -49,10 +49,12 @@ http://localhost:8080/trmnl-viewer
 ```
 
 ### TRMNL E-ink Display
-See [trmnl/README.md](trmnl/README.md) for setup. Deploy to Railway, then use:
+Deploy to Railway, then use endpoint:
 ```
 https://your-app.railway.app/api/trmnl?days=7&team=LAL
 ```
+
+**See [trmnl/README.md](trmnl/README.md)** for complete TRMNL setup, layouts, and configuration.
 
 ## Testing
 
@@ -63,7 +65,7 @@ uv run pytest --no-cov           # Skip coverage
 uv run pytest tests/unit/        # Unit tests only
 ```
 
-See [tests/README.md](tests/README.md) for details.
+**See [tests/README.md](tests/README.md)** for full testing commands, cache management, and coverage.
 
 ## Deploy to Railway
 
@@ -83,3 +85,8 @@ Edit `config.yaml` for favorite team and scoring weights.
 ## Requirements
 
 Python 3.11+ with [uv](https://github.com/astral-sh/uv)
+
+## Documentation
+
+- **[tests/README.md](tests/README.md)** - Testing commands, cache management, coverage reports
+- **[trmnl/README.md](trmnl/README.md)** - TRMNL e-ink display setup, layouts, URL parameters
