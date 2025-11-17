@@ -68,8 +68,8 @@ Preview TRMNL layouts before deploying. Start web server, then visit:
 <http://localhost:8080/trmnl-viewer>
 
 ### TRMNL E-ink Display
-Deploy to Railway, then use endpoint:
-<https://your-app.railway.app/api/trmnl?days=7&team=LAL>
+Deploy to Render, then use endpoint:
+<https://your-app-name.onrender.com/api/trmnl?days=7&team=LAL>
 
 **See [trmnl/README.md](trmnl/README.md)** for complete TRMNL setup, layouts, and configuration.
 
@@ -84,13 +84,21 @@ uv run pytest tests/unit/        # Unit tests only
 
 **See [tests/README.md](tests/README.md)** for full testing commands, cache management, and coverage.
 
-## Deploy to Railway
+## Deploy to Render
 
-```bash
-# Web UI: Connect GitHub repo at railway.com
-# Or CLI:
-npm install -g @railway/cli
-railway login
-railway init
-railway up
-```
+### Option 1: Connect via Dashboard (Recommended)
+1. Go to [dashboard.render.com](https://dashboard.render.com)
+2. Click **New +** → **Blueprint**
+3. Connect your GitHub repository
+4. Render will automatically detect `render.yaml` and deploy
+
+### Option 2: Manual Setup
+1. Create new **Web Service** on Render
+2. Connect your GitHub repository
+3. Configure:
+   - **Build Command**: `pip install uv && uv sync`
+   - **Start Command**: `uv run gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 'src.interfaces.web.app:app'`
+   - **Environment**: Python 3.11
+4. Deploy
+
+Your app will be available at: `https://your-app-name.onrender.com`
