@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Command-line interface for NBA Game Recommender."""
+
 import argparse
 import sys
 from pathlib import Path
@@ -16,56 +17,63 @@ logger = get_logger(__name__)
 def main():
     """Main CLI entry point."""
     parser = argparse.ArgumentParser(
-        description='Find the most engaging NBA game from the last week'
+        description="Find the most engaging NBA game from the last week"
     )
 
     parser.add_argument(
-        '-d', '--days',
+        "-d",
+        "--days",
         type=int,
         default=7,
-        help='Number of days to look back (default: 7)'
+        help="Number of days to look back (default: 7)",
     )
 
     parser.add_argument(
-        '-t', '--team',
+        "-t",
+        "--team",
         type=str,
-        help='Favorite team abbreviation (e.g., LAL, BOS, GSW)'
+        help="Favorite team abbreviation (e.g., LAL, BOS, GSW)",
     )
 
     parser.add_argument(
-        '-a', '--all',
-        action='store_true',
-        help='Show all games ranked by engagement score'
+        "-a",
+        "--all",
+        action="store_true",
+        help="Show all games ranked by engagement score",
     )
 
     parser.add_argument(
-        '-c', '--config',
+        "-c",
+        "--config",
         type=str,
-        default='config.yaml',
-        help='Path to configuration file (default: config.yaml)'
+        default="config.yaml",
+        help="Path to configuration file (default: config.yaml)",
     )
 
     parser.add_argument(
-        '-e', '--explain',
-        action='store_true',
-        help='Show detailed scoring explanation with numbers and reasoning'
+        "-e",
+        "--explain",
+        action="store_true",
+        help="Show detailed scoring explanation with numbers and reasoning",
     )
 
     parser.add_argument(
-        '--list-stars',
-        action='store_true',
-        help='List all current star players tracked by the system'
+        "--list-stars",
+        action="store_true",
+        help="List all current star players tracked by the system",
     )
 
     parser.add_argument(
-        '--top-teams',
-        action='store_true',
-        help='List current top 5 teams by win percentage'
+        "--top-teams",
+        action="store_true",
+        help="List current top 5 teams by win percentage",
     )
 
     args = parser.parse_args()
 
-    logger.info(f"CLI invoked: days={args.days}, team={args.team}, show_all={args.all}, explain={args.explain}")
+    logger.info(
+        f"CLI invoked: days={args.days}, team={args.team}, show_all={args.all}, explain={args.explain}"
+    )
 
     try:
         recommender = GameRecommender(config_path=args.config)
@@ -74,14 +82,12 @@ def main():
         # Handle --list-stars command
         if args.list_stars:
             star_players = recommender.nba_client.STAR_PLAYERS
-            data_source = recommender.config.get('data_source', 'nba_stats')
 
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"⭐ CURRENT STAR PLAYERS")
-            print(f"{'='*60}")
-            print(f"Data Source: {data_source}")
+            print(f"{'=' * 60}")
             print(f"Total Players: {len(star_players)}")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
 
             # Sort players alphabetically for better readability
             sorted_players = sorted(star_players)
@@ -89,23 +95,23 @@ def main():
             for i, player in enumerate(sorted_players, 1):
                 print(f"{i:2d}. {player}")
 
-            print(f"\n{'='*60}")
-            print(f"Note: Star players are weighted at {recommender.scorer.star_power_weight} points each")
+            print(f"\n{'=' * 60}")
+            print(
+                f"Note: Star players are weighted at {recommender.scorer.star_power_weight} points each"
+            )
             print(f"      in the engagement scoring algorithm.")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
             return
 
         # Handle --top-teams command
         if args.top_teams:
             top_teams = recommender.nba_client.TOP_5_TEAMS
-            data_source = recommender.config.get('data_source', 'nba_stats')
 
-            print(f"\n{'='*60}")
+            print(f"\n{'=' * 60}")
             print(f"🏆 TOP 5 TEAMS BY WIN PERCENTAGE")
-            print(f"{'='*60}")
-            print(f"Data Source: {data_source}")
+            print(f"{'=' * 60}")
             print(f"Total Teams: {len(top_teams)}")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
 
             # Sort teams alphabetically for better readability
             sorted_teams = sorted(top_teams)
@@ -113,44 +119,54 @@ def main():
             for i, team in enumerate(sorted_teams, 1):
                 print(f"{i}. {team}")
 
-            print(f"\n{'='*60}")
-            print(f"Note: Top 5 teams receive a {recommender.scorer.top5_team_bonus} point bonus")
+            print(f"\n{'=' * 60}")
+            print(
+                f"Note: Top 5 teams receive a {recommender.scorer.top5_team_bonus} point bonus"
+            )
             print(f"      in the engagement scoring algorithm.")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
             return
 
         if args.all:
             # Show all games ranked
             print(f"\n🏀 Fetching NBA games from the last {args.days} days...\n")
-            games = recommender.get_all_games_ranked(days=args.days, favorite_team=args.team)
+            games = recommender.get_all_games_ranked(
+                days=args.days, favorite_team=args.team
+            )
 
             if not games:
                 logger.warning("No games found for the specified criteria")
                 print("No completed games found in the specified period.")
                 return
 
-            print(f"{'='*60}")
+            print(f"{'=' * 60}")
             print(f"ALL GAMES RANKED BY ENGAGEMENT")
-            print(f"{'='*60}\n")
+            print(f"{'=' * 60}\n")
 
             for i, result in enumerate(games, 1):
-                game = result['game']
-                away = game['away_team']
-                home = game['home_team']
+                game = result["game"]
+                away = game["away_team"]
+                home = game["home_team"]
 
-                print(f"{i}. {away['abbr']} {away['score']} @ {home['score']} {home['abbr']}")
+                print(
+                    f"{i}. {away['abbr']} {away['score']} @ {home['score']} {home['abbr']}"
+                )
                 print(f"   Date: {game['game_date']} | Score: {result['score']:.2f}")
 
                 if args.explain:
                     # Show detailed breakdown
                     print(f"   {recommender.format_score_explanation(result)}")
                 else:
-                    print(f"   Lead Changes: {result['breakdown']['lead_changes']['count']} | "
-                          f"Margin: {result['breakdown']['close_game']['margin']} pts\n")
+                    print(
+                        f"   Lead Changes: {result['breakdown']['lead_changes']['count']} | "
+                        f"Margin: {result['breakdown']['close_game']['margin']} pts\n"
+                    )
 
         else:
             # Show best game only
-            best_game = recommender.get_best_game(days=args.days, favorite_team=args.team)
+            best_game = recommender.get_best_game(
+                days=args.days, favorite_team=args.team
+            )
 
             if not best_game:
                 logger.warning("No games found for the specified criteria")
@@ -171,5 +187,5 @@ def main():
         sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
