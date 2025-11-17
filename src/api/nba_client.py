@@ -229,36 +229,22 @@ class NBAClient:
             response.raise_for_status()
             data = response.json()
 
-            # Debug: Log top-level keys to understand structure
-            logger.debug(f"API response top-level keys: {list(data.keys())}")
-
             star_count = 0
-            players = data.get('boxScoreTraditional', {}).get('players', [])
+            box_score = data.get('boxScoreTraditional', {})
 
-            # Debug: Check if boxScoreTraditional exists and what it contains
-            if 'boxScoreTraditional' in data:
-                box_score = data['boxScoreTraditional']
-                logger.debug(f"boxScoreTraditional keys: {list(box_score.keys())}")
-                logger.debug(f"Number of players found: {len(players)}")
-            else:
-                logger.debug("boxScoreTraditional key not found in response")
+            # Players are nested under homeTeam and awayTeam in v3 API
+            home_players = box_score.get('homeTeam', {}).get('players', [])
+            away_players = box_score.get('awayTeam', {}).get('players', [])
+            all_players = home_players + away_players
 
-            # Debug: Log the first player to see available fields
-            if players:
-                logger.debug(f"First player fields: {list(players[0].keys())}")
-            else:
-                logger.debug("Players list is empty - checking alternative structures")
-                # Check if players might be under team structure
-                if 'boxScoreTraditional' in data:
-                    logger.debug(f"Full boxScoreTraditional structure: {data['boxScoreTraditional']}")
+            logger.debug(f"Found {len(home_players)} home players and {len(away_players)} away players")
 
-            for player in players:
+            for player in all_players:
                 # NBA Stats API v3 uses firstName and familyName fields, not a single 'name' field
                 first_name = player.get('firstName', '')
                 family_name = player.get('familyName', '')
                 player_name = f"{first_name} {family_name}".strip()
 
-                logger.debug(f"Checking player: '{player_name}' against star players")
                 if player_name in self.STAR_PLAYERS:
                     star_count += 1
                     logger.debug(f"Found star player: {player_name}")
