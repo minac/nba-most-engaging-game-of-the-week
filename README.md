@@ -1,47 +1,33 @@
 # NBA Game Recommender
 
-Finds the most engaging NBA game from the past week using real NBA API data. Scores games based on lead changes, closeness, star power, and top teams.
+Finds the most engaging NBA game from the past week using real NBA API data. Scores games based on closeness, star power, top teams, and custom preferences.
+
+## Features
+
+- **Multiple Interfaces**: CLI, REST API, Web UI, or TRMNL E-ink Display
+- **Smart Scoring**: Evaluates games on top team participation, closeness, star players, and favorite team
+- **Configurable**: Customize weights and preferences via `config.yaml`
+- **Cached**: File-based caching reduces API calls and improves performance
+- **Real NBA Data**: Uses Ball Don't Lie API for live game data
 
 ## Quick Start
 
-- **Modular Architecture**: Run as CLI, REST API, Web Application, or TRMNL E-ink Display
-- **TRMNL Integration**: Display on your e-ink dashboard with multiple layout options
-- **Smart Scoring Algorithm**: Evaluates games based on:
-  - Lead changes (more exciting)
-  - Top 5 team participation
-  - Final margin (closer games score higher)
-  - Minimum 200 points threshold
-  - Star player participation
-  - Favorite team bonus
-- **Configurable**: Customize scoring weights and preferences via `config.yaml`
-- **Real NBA Data**: Fetches actual game data from the NBA Stats API
-
-## Installation
-
-1. Clone the repository:
 ```bash
-git clone https://github.com/minac/nba-most-engaging-game-of-the-week.git
-cd nba-most-engaging-game-of-the-week
-```
-
-2. Install dependencies:
-```bash
-# Install
+# Install dependencies
 uv sync
 
 # Run CLI
 uv run python src/interfaces/cli.py
 
-# Run API server
+# Run API server (localhost:3000)
 uv run python src/interfaces/api_server.py
 
-# Run web interface
+# Run web interface (localhost:8080)
 uv run python src/interfaces/web/app.py
 ```
 
-## Commands
+## CLI Usage
 
-### CLI
 ```bash
 uv run python src/interfaces/cli.py              # Best game, last 7 days
 uv run python src/interfaces/cli.py -d 3         # Last 3 days
@@ -49,56 +35,141 @@ uv run python src/interfaces/cli.py -t LAL       # Set favorite team
 uv run python src/interfaces/cli.py --all        # Show all games ranked
 ```
 
-### API Server (localhost:3000)
+## API Endpoints
+
+Start server: `uv run python src/interfaces/api_server.py`
+
+- `GET /api/health` - Health check
+- `GET /api/best-game?days=7&team=LAL` - Best game
+- `GET /api/games?days=7&team=LAL` - All games ranked
+- `GET /api/config` - Current configuration
+- `GET /api/trmnl?days=7&team=LAL` - TRMNL webhook format
+
+Example:
 ```bash
-uv run python src/interfaces/api_server.py
 curl "http://localhost:3000/api/best-game?days=7&team=LAL"
 ```
 
-**Endpoints**: `/api/health`, `/api/best-game`, `/api/games`, `/api/config`, `/api/trmnl`
+## Web Interface
 
-### Web Interface (localhost:8080)
 ```bash
 uv run python src/interfaces/web/app.py
 open http://localhost:8080
 ```
 
-### TRMNL Screen Viewer
-Preview TRMNL layouts before deploying. Start web server, then visit:
-<http://localhost:8080/trmnl-viewer>
+Visit `/trmnl-viewer` to preview TRMNL layouts.
 
-### TRMNL E-ink Display
-Deploy to Render, then use endpoint:
-<https://your-app-name.onrender.com/api/trmnl?days=7&team=LAL>
+## TRMNL E-ink Display Setup
 
-**See [trmnl/README.md](trmnl/README.md)** for complete TRMNL setup, layouts, and configuration.
+1. Deploy app to hosting service (see Deployment below)
+2. In TRMNL: Create Private Plugin with "Polling" strategy
+3. Set webhook: `https://your-app.com/api/trmnl?days=7&team=LAL`
+4. Copy markup from `trmnl/src/full.liquid` (or other layouts: `half_horizontal.liquid`, `half_vertical.liquid`, `quadrant.liquid`)
+5. Set refresh to 3600 seconds
+6. Add to playlist
+
+**Local TRMNL Development:**
+```bash
+cd trmnl
+gem install trmnlp
+trmnlp serve  # Opens http://localhost:3000
+```
 
 ## Testing
 
 ```bash
-uv sync --extra test              # Install test dependencies
-uv run pytest                     # Run all tests
-uv run pytest --no-cov           # Skip coverage
-uv run pytest tests/unit/        # Unit tests only
+# Install test dependencies
+uv sync --extra test
+
+# Run all tests
+uv run pytest
+
+# Run without coverage (faster)
+uv run pytest --no-cov
+
+# Unit or integration tests only
+uv run pytest tests/unit/
+uv run pytest tests/integration/
+
+# With coverage
+uv run pytest --cov=src --cov-report=html
 ```
 
-**See [tests/README.md](tests/README.md)** for full testing commands, cache management, and coverage.
+**Cache Management:**
+Tests use `/tmp/nba_cache` by default.
+```bash
+# Clear cache
+rm -rf /tmp/nba_cache
 
-## Deploy to Render
+# Check cache
+ls -lh /tmp/nba_cache/scoreboards/
+```
 
-### Option 1: Connect via Dashboard (Recommended)
+## Configuration
+
+Edit `config.yaml` to customize:
+
+```yaml
+favorite_team: "LAL"  # or null
+
+scoring:
+  top5_team_bonus: 20
+  close_game_bonus: 50
+  min_total_points: 200
+  star_power_weight: 20
+  favorite_team_bonus: 100
+
+cache:
+  enabled: true
+  directory: "/tmp/nba_cache"
+  scoreboard_ttl_days: 30
+  game_details_ttl_days: 30
+  auto_cleanup: true
+
+nba_api:
+  api_key: null  # Or set BALLDONTLIE_API_KEY env var
+```
+
+## Deployment to Render
+
+**Option 1: Blueprint (Recommended)**
 1. Go to [dashboard.render.com](https://dashboard.render.com)
-2. Click **New +** → **Blueprint**
-3. Connect your GitHub repository
-4. Render will automatically detect `render.yaml` and deploy
+2. New + → Blueprint
+3. Connect repository
+4. Auto-deploys using `render.yaml`
 
-### Option 2: Manual Setup
-1. Create new **Web Service** on Render
-2. Connect your GitHub repository
-3. Configure:
-   - **Build Command**: `pip install uv && uv sync`
-   - **Start Command**: `uv run gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 'src.interfaces.web.app:app'`
-   - **Environment**: Python 3.11
-4. Deploy
+**Option 2: Manual**
+1. New Web Service on Render
+2. Connect repository
+3. Build: `pip install uv && uv sync`
+4. Start: `uv run gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 'src.interfaces.web.app:app'`
+5. Environment: Python 3.11
 
-Your app will be available at: `https://your-app-name.onrender.com`
+Access at: `https://your-app-name.onrender.com`
+
+## Architecture
+
+```
+src/
+├── core/              # Business logic
+│   ├── game_scorer.py      # Scoring algorithm
+│   └── recommender.py      # Recommendation engine
+├── api/               # External APIs
+│   └── nba_client.py       # Ball Don't Lie client + caching
+├── utils/             # Utilities
+│   ├── logger.py           # Logging
+│   └── cache.py            # File-based cache
+└── interfaces/        # User interfaces
+    ├── cli.py              # Command-line
+    ├── api_server.py       # REST API
+    └── web/app.py          # Web UI
+
+trmnl/src/            # E-ink display layouts
+tests/                # Unit and integration tests
+```
+
+## Common Team Codes
+
+LAL, BOS, GSW, MIA, CHI, NYK, BKN, PHI, MIL, PHX, DAL, DEN, MEM, TOR, ATL
+
+See `claude.md` for detailed technical documentation.
