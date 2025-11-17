@@ -232,11 +232,22 @@ class NBAClient:
             star_count = 0
             players = data.get('boxScoreTraditional', {}).get('players', [])
 
+            # Debug: Log the first player to see available fields
+            if players:
+                logger.debug(f"First player fields: {list(players[0].keys())}")
+
             for player in players:
-                player_name = player.get('name', '')
+                # NBA Stats API v3 uses firstName and familyName fields, not a single 'name' field
+                first_name = player.get('firstName', '')
+                family_name = player.get('familyName', '')
+                player_name = f"{first_name} {family_name}".strip()
+
+                logger.debug(f"Checking player: '{player_name}' against star players")
                 if player_name in self.STAR_PLAYERS:
                     star_count += 1
+                    logger.debug(f"Found star player: {player_name}")
 
+            logger.debug(f"Total star players found in game {game_id}: {star_count}")
             return star_count
 
         except Exception as e:
