@@ -11,7 +11,7 @@ from typing import Optional
 
 def setup_logger(
     name: str,
-    level: int = logging.INFO,
+    level: int = logging.DEBUG,  # Temporarily changed to DEBUG to investigate
     format_string: Optional[str] = None
 ) -> logging.Logger:
     """
