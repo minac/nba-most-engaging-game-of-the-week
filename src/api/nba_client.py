@@ -229,12 +229,28 @@ class NBAClient:
             response.raise_for_status()
             data = response.json()
 
+            # Debug: Log top-level keys to understand structure
+            logger.debug(f"API response top-level keys: {list(data.keys())}")
+
             star_count = 0
             players = data.get('boxScoreTraditional', {}).get('players', [])
+
+            # Debug: Check if boxScoreTraditional exists and what it contains
+            if 'boxScoreTraditional' in data:
+                box_score = data['boxScoreTraditional']
+                logger.debug(f"boxScoreTraditional keys: {list(box_score.keys())}")
+                logger.debug(f"Number of players found: {len(players)}")
+            else:
+                logger.debug("boxScoreTraditional key not found in response")
 
             # Debug: Log the first player to see available fields
             if players:
                 logger.debug(f"First player fields: {list(players[0].keys())}")
+            else:
+                logger.debug("Players list is empty - checking alternative structures")
+                # Check if players might be under team structure
+                if 'boxScoreTraditional' in data:
+                    logger.debug(f"Full boxScoreTraditional structure: {data['boxScoreTraditional']}")
 
             for player in players:
                 # NBA Stats API v3 uses firstName and familyName fields, not a single 'name' field
