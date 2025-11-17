@@ -124,9 +124,8 @@ nba-most-engaging-game-of-the-week/
 ├── README.md                       # User-facing documentation
 ├── claude.md                       # AI assistant context (this file)
 ├── .python-version                 # Python 3.11
-├── railway.toml                    # Railway deployment config
-├── Procfile                        # Process definition
-└── .railwayignore                  # Deployment exclusions
+├── render.yaml                     # Render deployment config
+└── Procfile                        # Process definition (legacy)
 ```
 
 **Key Points:**
@@ -134,7 +133,7 @@ nba-most-engaging-game-of-the-week/
 - **Test coverage**: Unit tests for components, integration tests for interfaces
 - **Multiple interfaces**: CLI, API, Web, TRMNL - all use same core
 - **Configuration-driven**: Single config.yaml controls all behavior
-- **Production-ready**: Deployment configs for Railway included
+- **Production-ready**: Deployment configs for Render included
 
 ## Scoring Algorithm
 
@@ -389,7 +388,7 @@ The project includes a complete e-ink display plugin for TRMNL devices:
 ```
 
 **Setup:**
-1. Deploy app to Railway/Heroku/etc.
+1. Deploy app to Render (or other hosting service)
 2. Create TRMNL Private Plugin with "Polling" strategy
 3. Set webhook URL: `https://your-app.com/api/trmnl?days=7&team=LAL`
 4. Copy desired layout markup into TRMNL plugin

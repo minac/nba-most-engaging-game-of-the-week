@@ -4,9 +4,9 @@ Display NBA game recommendations on your TRMNL e-ink device.
 
 ## Quick Setup
 
-1. Deploy main app to Railway (see main README)
+1. Deploy main app to Render (see main README)
 2. In TRMNL account: Create Private Plugin with "Polling" strategy
-3. Set endpoint: `https://your-app.railway.app/api/trmnl?days=7&team=LAL`
+3. Set endpoint: `https://your-app-name.onrender.com/api/trmnl?days=7&team=LAL`
 4. Copy markup from `trmnl/src/full.liquid` (or other layouts)
 5. Set refresh to 3600 seconds (1 hour)
 6. Add to TRMNL playlist
@@ -22,7 +22,7 @@ Copy one of these to TRMNL markup editor:
 ## URL Parameters
 
 ```
-https://your-app.railway.app/api/trmnl?days=7&team=LAL
+https://your-app-name.onrender.com/api/trmnl?days=7&team=LAL
 ```
 
 - `days` - Lookback period (1-14, default: 7)
