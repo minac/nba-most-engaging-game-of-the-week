@@ -95,14 +95,6 @@ railway init
 railway up
 ```
 
-## Config
-
-Edit `config.yaml` for favorite team and scoring weights.
-
-## Requirements
-
-Python 3.11+ with [uv](https://github.com/astral-sh/uv)
-
 ## Documentation
 
 - **[tests/README.md](tests/README.md)** - Testing commands, cache management, coverage reports
