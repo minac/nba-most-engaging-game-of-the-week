@@ -60,6 +60,8 @@ class NBAClient:
         cache_dir = cache_config.get('directory', '/tmp/nba_cache')
         self.scoreboard_ttl_days = cache_config.get('scoreboard_ttl_days', 30)
         self.game_details_ttl_days = cache_config.get('game_details_ttl_days', 30)
+        self.star_players_ttl_days = cache_config.get('star_players_ttl_days', 7)  # Refresh weekly
+        self.game_stats_ttl_days = cache_config.get('game_stats_ttl_days', 30)  # Cache stats for 30 days
 
         if cache_enabled:
             self.cache = DateBasedCache(cache_dir=cache_dir)
@@ -120,6 +122,14 @@ class NBAClient:
         Returns:
             Count of star players in the game
         """
+        # Check file-based cache first (persistent across restarts)
+        if self.cache:
+            cached_stats = self.cache.get_game_stats(game_id, self.game_stats_ttl_days)
+            if cached_stats is not None:
+                star_count = cached_stats.get('star_players_count', 0)
+                logger.debug(f"Using cached star player count for game {game_id}: {star_count}")
+                return star_count
+
         # Check rate limiting before making API call
         if self._is_rate_limited('stats'):
             stats = self._get_rate_limit_stats('stats')
@@ -163,6 +173,14 @@ class NBAClient:
 
             if star_count > 0:
                 logger.info(f"Game {game_id} has {star_count} star player(s): {players_in_game & star_players}")
+
+            # Cache the game stats for future use
+            if self.cache:
+                self.cache.set_game_stats(game_id, {
+                    'star_players_count': star_count,
+                    'players_in_game': list(players_in_game),
+                    'star_players_in_game': list(players_in_game & star_players)
+                })
 
             return star_count
 
@@ -461,6 +479,20 @@ class NBAClient:
         Returns:
             Set of star player names (top 30 scorers)
         """
+        # Get current season
+        now = datetime.now()
+        if now.month >= 10:  # Season starts in October
+            season = now.year
+        else:
+            season = now.year - 1
+
+        # Check file-based cache first (persistent across restarts)
+        if self.cache:
+            cached_players = self.cache.get_star_players(season, self.star_players_ttl_days)
+            if cached_players is not None:
+                logger.info(f"Using cached star players for season {season}")
+                return set(cached_players)
+
         # Check rate limiting before making API call
         if self._is_rate_limited('leaders'):
             stats = self._get_rate_limit_stats('leaders')
@@ -482,13 +514,6 @@ class NBAClient:
 
         for attempt in range(max_retries):
             try:
-                # Get current season
-                now = datetime.now()
-                if now.month >= 10:  # Season starts in October
-                    season = now.year
-                else:
-                    season = now.year - 1
-
                 url = f"{self.BASE_URL}/leaders"
                 params = {
                     'season': season,
@@ -525,6 +550,10 @@ class NBAClient:
 
                 # Update rate limit timestamp after successful API call
                 self._update_rate_limit_timestamp('leaders')
+
+                # Cache the star players for future use
+                if self.cache:
+                    self.cache.set_star_players(season, list(star_players))
 
                 return star_players
 

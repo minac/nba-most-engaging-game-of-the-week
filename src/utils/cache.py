@@ -26,6 +26,8 @@ class DateBasedCache:
         # Create cache directory structure
         self.scoreboard_dir = self.cache_dir / "scoreboards"
         self.game_details_dir = self.cache_dir / "games"
+        self.star_players_dir = self.cache_dir / "star_players"
+        self.game_stats_dir = self.cache_dir / "game_stats"
 
         self._ensure_directories()
 
@@ -34,6 +36,8 @@ class DateBasedCache:
         try:
             self.scoreboard_dir.mkdir(parents=True, exist_ok=True)
             self.game_details_dir.mkdir(parents=True, exist_ok=True)
+            self.star_players_dir.mkdir(parents=True, exist_ok=True)
+            self.game_stats_dir.mkdir(parents=True, exist_ok=True)
             logger.debug(f"Cache directories ready at {self.cache_dir}")
         except Exception as e:
             logger.error(f"Error creating cache directories: {e}")
@@ -149,6 +153,90 @@ class DateBasedCache:
         except Exception as e:
             logger.error(f"Error writing game details cache for {game_id}: {e}")
 
+    def get_star_players(self, season: int, ttl_days: Optional[int] = None) -> Optional[list]:
+        """
+        Get cached star players data for a specific season.
+
+        Args:
+            season: NBA season year
+            ttl_days: Time-to-live in days (uses default if None)
+
+        Returns:
+            List of star player names or None if cache miss
+        """
+        cache_file = self.star_players_dir / f"{season}.json"
+
+        if not self._is_cache_valid(cache_file, ttl_days):
+            return None
+
+        try:
+            with open(cache_file, 'r') as f:
+                data = json.load(f)
+                logger.info(f"Cache HIT: Star players for season {season} ({len(data)} players)")
+                return data
+        except Exception as e:
+            logger.error(f"Error reading star players cache for season {season}: {e}")
+            return None
+
+    def set_star_players(self, season: int, players: list):
+        """
+        Cache star players data for a specific season.
+
+        Args:
+            season: NBA season year
+            players: List of star player names
+        """
+        cache_file = self.star_players_dir / f"{season}.json"
+
+        try:
+            with open(cache_file, 'w') as f:
+                json.dump(players, f, indent=2)
+            logger.info(f"Cache WRITE: Star players for season {season} ({len(players)} players)")
+        except Exception as e:
+            logger.error(f"Error writing star players cache for season {season}: {e}")
+
+    def get_game_stats(self, game_id: str, ttl_days: Optional[int] = None) -> Optional[Dict[str, Any]]:
+        """
+        Get cached game stats (player stats for star player counting).
+
+        Args:
+            game_id: NBA game ID
+            ttl_days: Time-to-live in days (uses default if None)
+
+        Returns:
+            Dictionary with game stats or None if cache miss
+        """
+        cache_file = self.game_stats_dir / f"{game_id}.json"
+
+        if not self._is_cache_valid(cache_file, ttl_days):
+            return None
+
+        try:
+            with open(cache_file, 'r') as f:
+                data = json.load(f)
+                logger.debug(f"Cache HIT: Game stats for {game_id}")
+                return data
+        except Exception as e:
+            logger.error(f"Error reading game stats cache for {game_id}: {e}")
+            return None
+
+    def set_game_stats(self, game_id: str, stats: Dict[str, Any]):
+        """
+        Cache game stats (player stats for star player counting).
+
+        Args:
+            game_id: NBA game ID
+            stats: Dictionary with game stats
+        """
+        cache_file = self.game_stats_dir / f"{game_id}.json"
+
+        try:
+            with open(cache_file, 'w') as f:
+                json.dump(stats, f, indent=2)
+            logger.debug(f"Cache WRITE: Game stats for {game_id}")
+        except Exception as e:
+            logger.error(f"Error writing game stats cache for {game_id}: {e}")
+
     def clear_expired(self, ttl_days: Optional[int] = None):
         """
         Remove expired cache files.
@@ -161,7 +249,8 @@ class DateBasedCache:
         removed_count = 0
 
         try:
-            for cache_dir in [self.scoreboard_dir, self.game_details_dir]:
+            for cache_dir in [self.scoreboard_dir, self.game_details_dir,
+                            self.star_players_dir, self.game_stats_dir]:
                 for cache_file in cache_dir.glob("*.json"):
                     file_time = datetime.fromtimestamp(cache_file.stat().st_mtime)
                     if file_time < cutoff_time:
@@ -183,17 +272,22 @@ class DateBasedCache:
         try:
             scoreboard_count = len(list(self.scoreboard_dir.glob("*.json")))
             game_details_count = len(list(self.game_details_dir.glob("*.json")))
+            star_players_count = len(list(self.star_players_dir.glob("*.json")))
+            game_stats_count = len(list(self.game_stats_dir.glob("*.json")))
 
             # Calculate total cache size
             total_size = 0
-            for cache_dir in [self.scoreboard_dir, self.game_details_dir]:
+            for cache_dir in [self.scoreboard_dir, self.game_details_dir,
+                            self.star_players_dir, self.game_stats_dir]:
                 for cache_file in cache_dir.glob("*.json"):
                     total_size += cache_file.stat().st_size
 
             return {
                 'scoreboard_entries': scoreboard_count,
                 'game_details_entries': game_details_count,
-                'total_entries': scoreboard_count + game_details_count,
+                'star_players_entries': star_players_count,
+                'game_stats_entries': game_stats_count,
+                'total_entries': scoreboard_count + game_details_count + star_players_count + game_stats_count,
                 'total_size_bytes': total_size,
                 'total_size_mb': round(total_size / (1024 * 1024), 2),
                 'cache_dir': str(self.cache_dir)
@@ -206,7 +300,8 @@ class DateBasedCache:
         """Clear all cached data."""
         try:
             removed_count = 0
-            for cache_dir in [self.scoreboard_dir, self.game_details_dir]:
+            for cache_dir in [self.scoreboard_dir, self.game_details_dir,
+                            self.star_players_dir, self.game_stats_dir]:
                 for cache_file in cache_dir.glob("*.json"):
                     cache_file.unlink()
                     removed_count += 1
