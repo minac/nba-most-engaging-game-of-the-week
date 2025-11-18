@@ -419,7 +419,7 @@
                         </div>
                         <div class="breakdown-item">
                             <span>Total Points</span>
-                            <span>${breakdown.total_points.total} (${breakdown.total_points.threshold_met ? '✓' : '✗'} 200+)</span>
+                            <span>${breakdown.total_points.threshold_met ? breakdown.total_points.points + ' pts ✓' : '0.0 pts (<200)'}</span>
                         </div>
                         <div class="breakdown-item">
                             <span>Star Players</span>
@@ -453,7 +453,7 @@
                             ${game.game_date} |
                             Top 5 Teams: ${breakdown.top5_teams.count} (${breakdown.top5_teams.points.toFixed(1)} pts) |
                             Closeness: ${breakdown.close_game.points.toFixed(1)} pts |
-                            Total: ${breakdown.total_points.total} pts${breakdown.total_points.threshold_met ? ' ✓' : ' ✗'} |
+                            Total: ${breakdown.total_points.threshold_met ? breakdown.total_points.points + ' pts ✓' : '0.0 pts (<200)'} |
                             Stars: ${breakdown.star_power.count} (${breakdown.star_power.points.toFixed(1)} pts) |
                             Favorite: ${breakdown.favorite_team.has_favorite ? 'Yes' : 'No'} (${breakdown.favorite_team.points.toFixed(1)} pts)
                         </div>
