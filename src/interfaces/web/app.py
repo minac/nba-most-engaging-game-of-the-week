@@ -3,8 +3,10 @@
 import sys
 from pathlib import Path
 from flask import Flask, render_template, request, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
+from functools import lru_cache
+from typing import Optional, Tuple, Any
 
 # Add parent directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent.parent))
@@ -27,6 +29,50 @@ with open('config.yaml', 'r') as f:
 recommender = GameRecommender()
 # Use the shared game service with the recommender
 game_service = GameService(recommender=recommender)
+
+# Request-level cache for ranked games (in-memory with TTL)
+_request_cache = {}
+_cache_ttl_seconds = 300  # 5 minutes
+
+
+def get_cached_or_fetch(cache_key: str, fetch_func, ttl_seconds: int = 300):
+    """
+    Get data from cache or fetch if expired/missing.
+
+    Args:
+        cache_key: Unique key for this request
+        fetch_func: Function to call if cache miss
+        ttl_seconds: Time to live in seconds
+
+    Returns:
+        Cached or freshly fetched data
+    """
+    global _request_cache
+
+    # Check if we have cached data
+    if cache_key in _request_cache:
+        cached_data, cached_time = _request_cache[cache_key]
+        age = (datetime.now() - cached_time).total_seconds()
+
+        if age < ttl_seconds:
+            logger.info(f"Cache HIT for {cache_key} (age: {age:.1f}s)")
+            return cached_data
+        else:
+            logger.info(f"Cache EXPIRED for {cache_key} (age: {age:.1f}s)")
+
+    # Cache miss or expired - fetch fresh data
+    logger.info(f"Cache MISS for {cache_key} - fetching fresh data")
+    fresh_data = fetch_func()
+    _request_cache[cache_key] = (fresh_data, datetime.now())
+
+    # Clean up old cache entries (keep cache size bounded)
+    if len(_request_cache) > 100:
+        # Remove oldest 50% of entries
+        sorted_keys = sorted(_request_cache.items(), key=lambda x: x[1][1])
+        for key, _ in sorted_keys[:50]:
+            del _request_cache[key]
+
+    return fresh_data
 
 
 @app.route('/')
@@ -54,7 +100,13 @@ def recommend():
 
     # Use shared service (handles validation and error handling)
     if show_all:
-        response = game_service.get_all_games_ranked(days=days, favorite_team=favorite_team)
+        # Use request-level caching for ranked games (significant speedup on repeat requests)
+        cache_key = f"ranked_games_{days}_{favorite_team}"
+        response = get_cached_or_fetch(
+            cache_key,
+            lambda: game_service.get_all_games_ranked(days=days, favorite_team=favorite_team),
+            ttl_seconds=_cache_ttl_seconds
+        )
 
         # Return appropriate HTTP status code
         if not response['success']:
@@ -77,7 +129,13 @@ def recommend():
             'games': response['data']
         })
     else:
-        response = game_service.get_best_game(days=days, favorite_team=favorite_team)
+        # Use request-level caching for best game recommendation too
+        cache_key = f"best_game_{days}_{favorite_team}"
+        response = get_cached_or_fetch(
+            cache_key,
+            lambda: game_service.get_best_game(days=days, favorite_team=favorite_team),
+            ttl_seconds=_cache_ttl_seconds
+        )
 
         # Return appropriate HTTP status code
         if not response['success']:

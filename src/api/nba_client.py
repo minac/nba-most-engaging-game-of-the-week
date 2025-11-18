@@ -85,6 +85,13 @@ class NBAClient:
         self.API_RATE_LIMIT_WINDOW_SECONDS = 600  # 10 minutes
         self.API_RATE_LIMIT_MAX_CALLS = 120  # Max calls per 10-minute window
 
+        # Pre-fetch metadata (top teams and star players) to avoid lazy loading delays
+        logger.info("Pre-fetching top teams and star players metadata...")
+        self._top_teams_cache = self._fetch_top_teams()
+        self._star_players_cache = self._fetch_star_players()
+        self._cache_timestamp = datetime.now()
+        logger.info(f"Metadata pre-fetched: {len(self._top_teams_cache)} top teams, {len(self._star_players_cache)} star players")
+
     def get_games_last_n_days(self, days: int = 7) -> List[Dict]:
         """
         Fetch all completed games from the last N days.
@@ -103,14 +110,118 @@ class NBAClient:
 
         while current_date <= end_date:
             date_str = current_date.strftime('%Y-%m-%d')
-            daily_games = self._get_scoreboard(date_str)
+            daily_games, from_cache = self._get_scoreboard(date_str)
             games.extend(daily_games)
             current_date += timedelta(days=1)
-            # Increased delay to avoid rate limiting (Ball Don't Lie has 100 requests/min limit)
-            # 1 second ensures we stay well under the limit
-            time.sleep(1.0)
+            # Only delay if we made an API call (not from cache)
+            # This avoids rate limiting while maximizing cache performance
+            if not from_cache:
+                time.sleep(1.0)
 
         return games
+
+    def _get_batch_star_players_count(self, game_ids: List[str]) -> Dict[str, int]:
+        """
+        Get count of star players who played in multiple games (batch operation).
+
+        Args:
+            game_ids: List of game IDs
+
+        Returns:
+            Dictionary mapping game_id to star player count
+        """
+        if not game_ids:
+            return {}
+
+        result = {}
+        uncached_ids = []
+
+        # Check cache first for each game
+        for game_id in game_ids:
+            if self.cache:
+                cached_stats = self.cache.get_game_stats(game_id, self.game_stats_ttl_days)
+                if cached_stats is not None:
+                    star_count = cached_stats.get('star_players_count', 0)
+                    logger.debug(f"Using cached star player count for game {game_id}: {star_count}")
+                    result[game_id] = star_count
+                    continue
+            uncached_ids.append(game_id)
+
+        # If all games were cached, return early
+        if not uncached_ids:
+            return result
+
+        # Check rate limiting before making API call
+        if self._is_rate_limited('stats'):
+            stats = self._get_rate_limit_stats('stats')
+            logger.info(f"Rate limited for stats endpoint ({stats['calls_made']}/{stats['max_calls']} calls used). Skipping star player count for {len(uncached_ids)} games.")
+            # Return 0 for uncached games
+            for game_id in uncached_ids:
+                result[game_id] = 0
+            return result
+
+        try:
+            # Batch fetch all uncached games in one API call
+            url = f"{self.BASE_URL}/stats"
+            # Use list of tuples to allow multiple values for same key (game_ids[])
+            params = [('per_page', '100')]
+            for game_id in uncached_ids:
+                params.append(('game_ids[]', game_id))
+
+            logger.info(f"Batch fetching player stats for {len(uncached_ids)} games...")
+            response = self.session.get(url, params=params, timeout=15)
+
+            # Handle rate limiting gracefully
+            if response.status_code == 429:
+                logger.warning(f"Rate limited while fetching batch stats, returning 0 for all")
+                for game_id in uncached_ids:
+                    result[game_id] = 0
+                return result
+
+            response.raise_for_status()
+            data = response.json()
+
+            # Update rate limit timestamp after successful API call
+            self._update_rate_limit_timestamp('stats')
+
+            # Group stats by game_id
+            game_players = {game_id: set() for game_id in uncached_ids}
+            for stat in data.get('data', []):
+                stat_game_id = str(stat.get('game', {}).get('id', ''))
+                if stat_game_id in game_players:
+                    player = stat.get('player', {})
+                    first_name = player.get('first_name', '')
+                    last_name = player.get('last_name', '')
+                    full_name = f"{first_name} {last_name}".strip()
+                    if full_name:
+                        game_players[stat_game_id].add(full_name)
+
+            # Count star players for each game
+            star_players = self.STAR_PLAYERS
+            for game_id in uncached_ids:
+                players_in_game = game_players.get(game_id, set())
+                star_count = len(players_in_game & star_players)
+                result[game_id] = star_count
+
+                if star_count > 0:
+                    logger.info(f"Game {game_id} has {star_count} star player(s): {players_in_game & star_players}")
+
+                # Cache the game stats for future use
+                if self.cache:
+                    self.cache.set_game_stats(game_id, {
+                        'star_players_count': star_count,
+                        'players_in_game': list(players_in_game),
+                        'star_players_in_game': list(players_in_game & star_players)
+                    })
+
+            return result
+
+        except Exception as e:
+            logger.warning(f"Error fetching batch star players count: {e}")
+            # Return 0 for all uncached games on error
+            for game_id in uncached_ids:
+                result[game_id] = 0
+            return result
 
     def _get_game_star_players_count(self, game_id: str) -> int:
         """
@@ -189,7 +300,7 @@ class NBAClient:
             # Return 0 on error to not break the flow
             return 0
 
-    def _get_scoreboard(self, game_date: str) -> List[Dict]:
+    def _get_scoreboard(self, game_date: str) -> tuple[List[Dict], bool]:
         """
         Get scoreboard for a specific date.
 
@@ -197,7 +308,7 @@ class NBAClient:
             game_date: Date in YYYY-MM-DD format
 
         Returns:
-            List of games for that date
+            Tuple of (list of games for that date, whether data came from cache)
         """
         # Check cache first
         if self.cache:
@@ -207,14 +318,14 @@ class NBAClient:
                 if self._is_rate_limited('scoreboard'):
                     stats = self._get_rate_limit_stats('scoreboard')
                     logger.info(f"Rate limited ({stats['calls_made']}/{stats['max_calls']} calls used). Returning cached scoreboard data for {game_date}.")
-                return cached_games
+                return cached_games, True
 
         # Check rate limiting before making API call
         if self._is_rate_limited('scoreboard'):
             stats = self._get_rate_limit_stats('scoreboard')
             logger.warning(f"Rate limited ({stats['calls_made']}/{stats['max_calls']} calls used, window resets at {stats['window_resets_at']}) and no cached data available for {game_date}.")
             # Return empty list if no cache and rate limited
-            return []
+            return [], False
 
         # Not rate limited - fetch from API with retry logic
         max_retries = 3
@@ -246,20 +357,30 @@ class NBAClient:
                 response.raise_for_status()
                 data = response.json()
 
-                games = []
+                # First pass: collect all completed games and their IDs
+                raw_games = []
+                game_ids = []
                 for game in data.get('data', []):
                     # Only include completed games
                     if game.get('status') != 'Final':
                         continue
 
+                    game_id = str(game.get('id'))
+                    game_ids.append(game_id)
+                    raw_games.append(game)
+
+                # Batch fetch star players count for all games at once
+                star_counts = self._get_batch_star_players_count(game_ids)
+
+                # Second pass: build game info with star counts
+                games = []
+                for game in raw_games:
                     home_team = game.get('home_team', {})
                     visitor_team = game.get('visitor_team', {})
                     home_score = game.get('home_team_score', 0)
                     visitor_score = game.get('visitor_team_score', 0)
                     game_id = str(game.get('id'))
-
-                    # Fetch star players count for this game
-                    star_players_count = self._get_game_star_players_count(game_id)
+                    star_players_count = star_counts.get(game_id, 0)
 
                     game_info = {
                         'game_id': game_id,
@@ -283,10 +404,6 @@ class NBAClient:
 
                     games.append(game_info)
 
-                    # Small delay between stats requests to avoid rate limiting
-                    if star_players_count > 0:
-                        time.sleep(0.5)
-
                 # Store in cache
                 if self.cache and games:
                     self.cache.set_scoreboard(game_date, games)
@@ -294,7 +411,7 @@ class NBAClient:
                 # Update rate limit timestamp after successful API call
                 self._update_rate_limit_timestamp('scoreboard')
 
-                return games
+                return games, False
 
             except requests.exceptions.HTTPError as e:
                 if e.response.status_code == 429:
