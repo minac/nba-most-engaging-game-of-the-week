@@ -388,6 +388,18 @@ class NBAClient:
         Returns:
             Set of team abbreviations for top 5 teams
         """
+        # Get current season
+        now = datetime.now()
+        if now.month >= 10:  # Season starts in October
+            season = now.year
+        else:
+            season = now.year - 1
+
+        # Skip API call for 2025 season (requires premium plan) - use fallback
+        if season >= 2025:
+            logger.info(f"2025 season standings require premium plan. Using fallback defaults.")
+            return {'BOS', 'DEN', 'MIL', 'PHX', 'LAL'}
+
         # Check rate limiting before making API call
         if self._is_rate_limited('standings'):
             stats = self._get_rate_limit_stats('standings')
@@ -403,13 +415,6 @@ class NBAClient:
 
         for attempt in range(max_retries):
             try:
-                # Get current season
-                now = datetime.now()
-                if now.month >= 10:  # Season starts in October
-                    season = now.year
-                else:
-                    season = now.year - 1
-
                 url = f"{self.BASE_URL}/standings"
                 params = {'season': season}
 
