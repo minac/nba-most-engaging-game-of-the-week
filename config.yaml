@@ -27,6 +27,8 @@ cache:
   directory: "/tmp/nba_cache" # Cache storage directory
   scoreboard_ttl_days: 30 # Cache scoreboards for 30 days (completed games don't change)
   game_details_ttl_days: 30 # Cache game details for 30 days
+  star_players_ttl_days: 7 # Cache star players for 7 days (refresh weekly)
+  game_stats_ttl_days: 30 # Cache game stats for 30 days (completed games don't change)
   auto_cleanup: true # Automatically remove expired cache on startup
 
 # NBA API Configuration (Ball Don't Lie)
