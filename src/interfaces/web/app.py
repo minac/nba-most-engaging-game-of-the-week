@@ -156,7 +156,8 @@ def trmnl_webhook():
             },
             'total_points': {
                 'total': breakdown.get('total_points', {}).get('total', 0),
-                'threshold_met': breakdown.get('total_points', {}).get('threshold_met', False)
+                'threshold_met': breakdown.get('total_points', {}).get('threshold_met', False),
+                'points': f"{breakdown.get('total_points', {}).get('points', 0):.1f}"
             },
             'star_power': {
                 'count': breakdown.get('star_power', {}).get('count', 0),
@@ -263,7 +264,8 @@ def render_trmnl_screen():
                 },
                 'total_points': {
                     'total': breakdown.get('total_points', {}).get('total', 0),
-                    'threshold_met': breakdown.get('total_points', {}).get('threshold_met', False)
+                    'threshold_met': breakdown.get('total_points', {}).get('threshold_met', False),
+                    'points': f"{breakdown.get('total_points', {}).get('points', 0):.1f}"
                 },
                 'star_power': {
                     'count': breakdown.get('star_power', {}).get('count', 0),
