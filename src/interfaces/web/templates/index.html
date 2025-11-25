@@ -290,9 +290,8 @@
                             <div class="bg-gray-900 rounded-xl p-6 mb-4 golden-border">
                                 <div class="text-center">
                                     <h3 class="text-3xl font-bold mb-2">${game.away_team.abbr} vs. ${game.home_team.abbr}</h3>
-                                    <p class="text-gray-400 mb-1">Total Score</p>
-                                    <p class="text-xl font-semibold">${game.away_team.score + game.home_team.score}</p>
-                                    <p class="text-gray-500 text-sm mt-2">Final score: ${game.away_team.score}-${game.home_team.score}</p>
+                                    <p class="text-gray-400 mb-1">Game Date</p>
+                                    <p class="text-xl font-semibold">${game.game_date}</p>
                                 </div>
                             </div>
 
@@ -320,10 +319,6 @@
                                     <span class="text-gray-400">Date</span>
                                     <span>${game.game_date}</span>
                                 </div>
-                                <div class="flex justify-between text-sm">
-                                    <span class="text-gray-400">Final score</span>
-                                    <span>${game.away_team.score}-${game.home_team.score}</span>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -335,28 +330,28 @@
                             ${breakdown.lead_changes ? `
                                 <div class="bg-gray-900 rounded-lg p-3">
                                     <div class="text-gray-400 mb-1">Lead Changes</div>
-                                    <div class="font-semibold">${breakdown.lead_changes.count} (${breakdown.lead_changes.points.toFixed(1)}pts)</div>
+                                    <div class="font-semibold">${breakdown.lead_changes.points.toFixed(1)}pts</div>
                                 </div>
                             ` : ''}
                             <div class="bg-gray-900 rounded-lg p-3">
                                 <div class="text-gray-400 mb-1">Top 5 Teams</div>
-                                <div class="font-semibold">${breakdown.top5_teams.count} (${breakdown.top5_teams.points.toFixed(1)}pts)</div>
+                                <div class="font-semibold">${breakdown.top5_teams.count} teams</div>
                             </div>
                             <div class="bg-gray-900 rounded-lg p-3">
                                 <div class="text-gray-400 mb-1">Close Game</div>
                                 <div class="font-semibold">${breakdown.close_game.points.toFixed(1)}pts</div>
                             </div>
                             <div class="bg-gray-900 rounded-lg p-3">
-                                <div class="text-gray-400 mb-1">Total Points</div>
-                                <div class="font-semibold">${breakdown.total_points.threshold_met ? breakdown.total_points.points.toFixed(1) + 'pts ✓' : '0.0pts'}</div>
+                                <div class="text-gray-400 mb-1">Total Points Over 200</div>
+                                <div class="font-semibold">${breakdown.total_points.threshold_met ? '✓' : ''}</div>
                             </div>
                             <div class="bg-gray-900 rounded-lg p-3">
                                 <div class="text-gray-400 mb-1">Star Power</div>
-                                <div class="font-semibold">${breakdown.star_power.count} (${breakdown.star_power.points.toFixed(1)}pts)</div>
+                                <div class="font-semibold">${breakdown.star_power.count} players</div>
                             </div>
                             <div class="bg-gray-900 rounded-lg p-3">
                                 <div class="text-gray-400 mb-1">Favorite Team</div>
-                                <div class="font-semibold">${breakdown.favorite_team.has_favorite ? 'Yes' : 'No'} (${breakdown.favorite_team.points.toFixed(1)}pts)</div>
+                                <div class="font-semibold">${breakdown.favorite_team.has_favorite ? 'Yes' : 'No'}</div>
                             </div>
                         </div>
                     </div>
@@ -396,10 +391,8 @@
 
                                         <div class="bg-gray-900 rounded-xl p-4">
                                             <h3 class="text-xl font-bold mb-2">${game.away_team.abbr} vs. ${game.home_team.abbr}</h3>
-                                            <p class="text-gray-400 text-sm mb-1">Total Score</p>
-                                            <p class="text-lg font-semibold mb-2">${game.away_team.score + game.home_team.score}</p>
-                                            <p class="text-gray-500 text-xs">${game.game_date}</p>
-                                            <p class="text-gray-500 text-xs">Final score: ${game.away_team.score}-${game.home_team.score}</p>
+                                            <p class="text-gray-400 text-sm mb-1">Game Date</p>
+                                            <p class="text-lg font-semibold mb-2">${game.game_date}</p>
                                         </div>
                                     </div>
 
@@ -431,28 +424,28 @@
                                         ${breakdown.lead_changes ? `
                                             <div class="bg-gray-900 rounded p-2">
                                                 <div class="text-gray-500 mb-1">Lead Changes</div>
-                                                <div class="font-semibold">${breakdown.lead_changes.count} (${breakdown.lead_changes.points.toFixed(1)}pts)</div>
+                                                <div class="font-semibold">${breakdown.lead_changes.points.toFixed(1)}pts</div>
                                             </div>
                                         ` : ''}
                                         <div class="bg-gray-900 rounded p-2">
-                                            <div class="text-gray-500 mb-1">Top 5</div>
-                                            <div class="font-semibold">${breakdown.top5_teams.count} (${breakdown.top5_teams.points.toFixed(1)}pts)</div>
+                                            <div class="text-gray-500 mb-1">Top 5 Teams</div>
+                                            <div class="font-semibold">${breakdown.top5_teams.count} teams</div>
                                         </div>
                                         <div class="bg-gray-900 rounded p-2">
-                                            <div class="text-gray-500 mb-1">Close</div>
+                                            <div class="text-gray-500 mb-1">Close Game</div>
                                             <div class="font-semibold">${breakdown.close_game.points.toFixed(1)}pts</div>
                                         </div>
                                         <div class="bg-gray-900 rounded p-2">
-                                            <div class="text-gray-500 mb-1">Total Pts</div>
-                                            <div class="font-semibold">${breakdown.total_points.threshold_met ? breakdown.total_points.points.toFixed(1) + 'pts' : '0.0pts'}</div>
+                                            <div class="text-gray-500 mb-1">Total Pts>200</div>
+                                            <div class="font-semibold">${breakdown.total_points.threshold_met ? '✓' : ''}</div>
                                         </div>
                                         <div class="bg-gray-900 rounded p-2">
                                             <div class="text-gray-500 mb-1">Star Power</div>
-                                            <div class="font-semibold">${breakdown.star_power.count} (${breakdown.star_power.points.toFixed(1)}pts)</div>
+                                            <div class="font-semibold">${breakdown.star_power.count} players</div>
                                         </div>
                                         <div class="bg-gray-900 rounded p-2">
                                             <div class="text-gray-500 mb-1">Fav Team</div>
-                                            <div class="font-semibold">${breakdown.favorite_team.has_favorite ? 'Yes' : 'No'} (${breakdown.favorite_team.points.toFixed(1)}pts)</div>
+                                            <div class="font-semibold">${breakdown.favorite_team.has_favorite ? 'Yes' : 'No'}</div>
                                         </div>
                                     </div>
                                 </div>
