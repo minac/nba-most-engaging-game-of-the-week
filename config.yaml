@@ -22,17 +22,12 @@ web:
   host: "0.0.0.0"
   port: 8080
 
-# Cache Configuration
-cache:
-  enabled: true # Enable/disable caching
-  directory: "/tmp/nba_cache" # Cache storage directory
-  scoreboard_ttl_days: 0.25 # Cache scoreboards for 6 hours
-  game_details_ttl_days: 0.25 # Cache game details for 6 hours
-  star_players_ttl_days: 15 # Cache star players for 15 days
-  game_stats_ttl_days: 0.25 # Cache game stats for 6 hours
-  auto_cleanup: true # Automatically remove expired cache on startup
+# Database Configuration (SQLite)
+# NBA data is stored locally to avoid rate limiting
+database:
+  path: "data/nba_games.db" # SQLite database file path
 
-# NBA API Configuration (Ball Don't Lie)
-# Set BALLDONTLIE_API_KEY environment variable or configure api_key below
-nba_api:
-  api_key: null # Optional: set API key here (environment variable takes precedence)
+
+# Data Source: nba_api (free, scrapes NBA.com)
+# Run 'uv run python src/interfaces/sync_cli.py' to populate database
+# Sync daily or weekly via cron for fresh data

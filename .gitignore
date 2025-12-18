@@ -56,3 +56,6 @@ config.local.yaml
 coverage.xml
 htmlcov/
 .pytest_cache/
+
+# Local data (SQLite database)
+data/
