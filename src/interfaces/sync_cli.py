@@ -93,7 +93,7 @@ Examples:
         sync_service = NBASyncService(config_path=args.config)
 
         if args.status:
-            print_status(sync_service)
+            log_status(sync_service)
             return
 
         if args.force:
@@ -101,70 +101,63 @@ Examples:
             sync_service.db.clear_all()
 
         if args.metadata_only:
-            print("\n🏀 Syncing NBA metadata (teams, standings, star players)...\n")
+            logger.info("Syncing NBA metadata (teams, standings, star players)...")
             results = {
                 "teams": sync_service.sync_teams(),
                 "standings": sync_service.sync_standings(),
                 "star_players": sync_service.sync_star_players(),
             }
         elif args.games_only:
-            print(f"\n🏀 Syncing NBA games for last {args.days} days...\n")
+            logger.info(f"Syncing NBA games for last {args.days} days...")
             results = {"games": sync_service.sync_games(days=args.days)}
         else:
-            print(f"\n🏀 Starting full NBA data sync (last {args.days} days)...\n")
-            print("This may take a few minutes due to rate limiting.\n")
+            logger.info(f"Starting full NBA data sync (last {args.days} days)...")
+            logger.info("This may take a few minutes due to rate limiting.")
             results = sync_service.sync_all(days=args.days)
 
-        print("\n" + "=" * 50)
-        print("✅ Sync Complete!")
-        print("=" * 50)
+        logger.info("=" * 50)
+        logger.info("Sync Complete!")
+        logger.info("=" * 50)
         for key, value in results.items():
-            print(f"  • {key}: {value}")
+            logger.info(f"  {key}: {value}")
 
-        print("\n")
-        print_status(sync_service)
+        log_status(sync_service)
 
     except KeyboardInterrupt:
-        print("\n\n⚠️  Sync interrupted by user")
+        logger.warning("Sync interrupted by user")
         sys.exit(1)
     except Exception as e:
         logger.error(f"Sync failed: {e}")
-        print(f"\n❌ Sync failed: {e}")
         sys.exit(1)
 
 
-def print_status(sync_service: NBASyncService):
-    """Print current sync status."""
+def log_status(sync_service: NBASyncService):
+    """Log current sync status."""
     status = sync_service.get_sync_status()
 
-    print("\n📊 Database Status:")
-    print("=" * 50)
-    print(f"  Database: {status.get('db_path', 'N/A')}")
-    print(f"  Size: {status.get('db_size_mb', 0)} MB")
-    print()
-    print("  Records:")
-    print(f"    • Teams: {status.get('teams_count', 0)}")
-    print(f"    • Players: {status.get('players_count', 0)}")
-    print(f"    • Star Players: {status.get('star_players_count', 0)}")
-    print(f"    • Games: {status.get('games_count', 0)}")
-    print(f"    • Game Player Stats: {status.get('game_players_count', 0)}")
-    print(f"    • Standings: {status.get('standings_count', 0)}")
-    print()
+    logger.info("Database Status:")
+    logger.info("=" * 50)
+    logger.info(f"  Database: {status.get('db_path', 'N/A')}")
+    logger.info(f"  Size: {status.get('db_size_mb', 0)} MB")
+    logger.info("  Records:")
+    logger.info(f"    Teams: {status.get('teams_count', 0)}")
+    logger.info(f"    Players: {status.get('players_count', 0)}")
+    logger.info(f"    Star Players: {status.get('star_players_count', 0)}")
+    logger.info(f"    Games: {status.get('games_count', 0)}")
+    logger.info(f"    Game Player Stats: {status.get('game_players_count', 0)}")
+    logger.info(f"    Standings: {status.get('standings_count', 0)}")
 
     date_range = status.get("games_date_range", {})
     if date_range.get("min") and date_range.get("max"):
-        print(f"  Games Date Range: {date_range['min']} to {date_range['max']}")
+        logger.info(f"  Games Date Range: {date_range['min']} to {date_range['max']}")
 
-    print()
-    print("  Last Sync Times:")
+    logger.info("  Last Sync Times:")
     for sync_type in ["teams", "standings", "star_players", "games"]:
         last_sync = status.get(f"last_{sync_type}_sync")
         if last_sync:
-            print(f"    • {sync_type}: {last_sync}")
+            logger.info(f"    {sync_type}: {last_sync}")
         else:
-            print(f"    • {sync_type}: Never")
-
-    print()
+            logger.info(f"    {sync_type}: Never")
 
 
 if __name__ == "__main__":

@@ -3,12 +3,11 @@ services:
     name: nba-game-recommender
     runtime: python
     plan: free
-    buildCommand: pip install uv && uv sync
+    # Build installs deps and syncs NBA data to SQLite (takes ~2-3 min due to rate limiting)
+    buildCommand: pip install uv && uv sync && uv run python src/interfaces/sync_cli.py --days 7
     startCommand: uv run gunicorn --bind 0.0.0.0:$PORT --workers 2 --timeout 120 'src.interfaces.web.app:app'
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
       - key: PORT
         generateValue: true
-      - key: BALLDONTLIE_API_KEY
-        sync: false  # This will be set manually in Render dashboard as a secret
