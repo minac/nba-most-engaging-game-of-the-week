@@ -1,6 +1,7 @@
 """NBA Game Recommender Engine."""
+
 from typing import List, Dict, Optional
-from src.api.nba_client import NBAClient
+from src.api.nba_api_client import NBAClient
 from src.core.game_scorer import GameScorer
 import yaml
 
@@ -12,23 +13,25 @@ logger = get_logger(__name__)
 class GameRecommender:
     """Recommends the most engaging NBA game from recent games."""
 
-    def __init__(self, config_path: str = 'config.yaml'):
+    def __init__(self, config_path: str = "config.yaml"):
         """
         Initialize the game recommender.
 
         Args:
             config_path: Path to configuration file
         """
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             self.config = yaml.safe_load(f)
 
-        # Use Ball Don't Lie API as data source
+        # Use nba_api with SQLite caching as data source
         self.nba_client = NBAClient(config_path=config_path)
 
-        self.scorer = GameScorer(self.config.get('scoring', {}))
-        self.favorite_team = self.config.get('favorite_team')
+        self.scorer = GameScorer(self.config.get("scoring", {}))
+        self.favorite_team = self.config.get("favorite_team")
 
-    def get_best_game(self, days: int = 7, favorite_team: Optional[str] = None) -> Optional[Dict]:
+    def get_best_game(
+        self, days: int = 7, favorite_team: Optional[str] = None
+    ) -> Optional[Dict]:
         """
         Get the best game to watch from the last N days.
 
@@ -55,23 +58,25 @@ class GameRecommender:
 
         for game in games:
             score_result = self.scorer.score_game(
-                game,
-                favorite_team=fav_team,
-                top5_teams=self.nba_client.TOP_5_TEAMS
+                game, favorite_team=fav_team, top5_teams=self.nba_client.TOP_5_TEAMS
             )
 
-            scored_games.append({
-                'game': game,
-                'score': score_result['score'],
-                'breakdown': score_result['breakdown']
-            })
+            scored_games.append(
+                {
+                    "game": game,
+                    "score": score_result["score"],
+                    "breakdown": score_result["breakdown"],
+                }
+            )
 
         # Sort by score (descending)
-        scored_games.sort(key=lambda x: x['score'], reverse=True)
+        scored_games.sort(key=lambda x: x["score"], reverse=True)
 
         return scored_games[0] if scored_games else None
 
-    def get_all_games_ranked(self, days: int = 7, favorite_team: Optional[str] = None) -> List[Dict]:
+    def get_all_games_ranked(
+        self, days: int = 7, favorite_team: Optional[str] = None
+    ) -> List[Dict]:
         """
         Get all games ranked by engagement score.
 
@@ -94,19 +99,19 @@ class GameRecommender:
 
         for game in games:
             score_result = self.scorer.score_game(
-                game,
-                favorite_team=fav_team,
-                top5_teams=self.nba_client.TOP_5_TEAMS
+                game, favorite_team=fav_team, top5_teams=self.nba_client.TOP_5_TEAMS
             )
 
-            scored_games.append({
-                'game': game,
-                'score': score_result['score'],
-                'breakdown': score_result['breakdown']
-            })
+            scored_games.append(
+                {
+                    "game": game,
+                    "score": score_result["score"],
+                    "breakdown": score_result["breakdown"],
+                }
+            )
 
         # Sort by score (descending)
-        scored_games.sort(key=lambda x: x['score'], reverse=True)
+        scored_games.sort(key=lambda x: x["score"], reverse=True)
 
         return scored_games
 
@@ -120,20 +125,30 @@ class GameRecommender:
         Returns:
             Formatted string explanation (compact for --all mode)
         """
-        breakdown = result['breakdown']
+        breakdown = result["breakdown"]
         config = self.scorer.__dict__
 
         parts = []
-        parts.append(f"Lead Changes: {breakdown['lead_changes']['count']} × {config['lead_changes_weight']} = {breakdown['lead_changes']['points']:.1f}")
-        parts.append(f"Top5 Teams: {breakdown['top5_teams']['count']} × {config['top5_team_bonus']} = {breakdown['top5_teams']['points']:.1f}")
-        parts.append(f"Close Game: {breakdown['close_game']['margin']}pt margin = {breakdown['close_game']['points']:.1f}")
-        parts.append(f"Stars: {breakdown['star_power']['count']} × {config['star_power_weight']} = {breakdown['star_power']['points']:.1f}")
+        parts.append(
+            f"Lead Changes: {breakdown['lead_changes']['count']} × {config['lead_changes_weight']} = {breakdown['lead_changes']['points']:.1f}"
+        )
+        parts.append(
+            f"Top5 Teams: {breakdown['top5_teams']['count']} × {config['top5_team_bonus']} = {breakdown['top5_teams']['points']:.1f}"
+        )
+        parts.append(
+            f"Close Game: {breakdown['close_game']['margin']}pt margin = {breakdown['close_game']['points']:.1f}"
+        )
+        parts.append(
+            f"Stars: {breakdown['star_power']['count']} × {config['star_power_weight']} = {breakdown['star_power']['points']:.1f}"
+        )
 
-        if breakdown['favorite_team']['has_favorite']:
+        if breakdown["favorite_team"]["has_favorite"]:
             parts.append(f"Favorite Team: +{breakdown['favorite_team']['points']:.1f}")
 
-        if breakdown['total_points'].get('penalty_applied'):
-            parts.append(f"Low Score Penalty: {breakdown['total_points']['total']} pts (90% penalty)")
+        if breakdown["total_points"].get("penalty_applied"):
+            parts.append(
+                f"Low Score Penalty: {breakdown['total_points']['total']} pts (90% penalty)"
+            )
 
         return "\n   ".join(parts) + "\n"
 
@@ -148,93 +163,93 @@ class GameRecommender:
         Returns:
             Formatted string summary
         """
-        game = result['game']
-        score = result['score']
-        breakdown = result['breakdown']
+        game = result["game"]
+        score = result["score"]
+        breakdown = result["breakdown"]
 
-        away = game['away_team']
-        home = game['home_team']
+        away = game["away_team"]
+        home = game["home_team"]
 
         if explain:
             # Detailed explanation mode
             config = self.scorer.__dict__
             summary = f"""
-{'='*60}
+{"=" * 60}
 🏀 MOST ENGAGING GAME 🏀
-{'='*60}
+{"=" * 60}
 
-{away['name']} @ {home['name']}
-Date: {game['game_date']}
+{away["name"]} @ {home["name"]}
+Date: {game["game_date"]}
 
-Final Score: {away['abbr']} {away['score']} - {home['score']} {home['abbr']}
+Final Score: {away["abbr"]} {away["score"]} - {home["score"]} {home["abbr"]}
 
-{'='*60}
+{"=" * 60}
 ENGAGEMENT SCORE: {score:.2f}
-{'='*60}
+{"=" * 60}
 
 DETAILED SCORING EXPLANATION:
-{'='*60}
+{"=" * 60}
 
-1. TOP 5 TEAMS (Bonus: {config['top5_team_bonus']} pts per team)
-   Teams in game: {breakdown['top5_teams']['count']}
-   Calculation: {breakdown['top5_teams']['count']} × {config['top5_team_bonus']} = {breakdown['top5_teams']['points']:.1f} points
-   {f"Current Top 5 Teams: {', '.join(sorted(self.nba_client.TOP_5_TEAMS))}" if breakdown['top5_teams']['count'] == 0 else ''}
+1. TOP 5 TEAMS (Bonus: {config["top5_team_bonus"]} pts per team)
+   Teams in game: {breakdown["top5_teams"]["count"]}
+   Calculation: {breakdown["top5_teams"]["count"]} × {config["top5_team_bonus"]} = {breakdown["top5_teams"]["points"]:.1f} points
+   {f"Current Top 5 Teams: {', '.join(sorted(self.nba_client.TOP_5_TEAMS))}" if breakdown["top5_teams"]["count"] == 0 else ""}
 
-2. GAME CLOSENESS (Max Bonus: {config['close_game_bonus']} pts)
-   Final Margin: {breakdown['close_game']['margin']} points
+2. GAME CLOSENESS (Max Bonus: {config["close_game_bonus"]} pts)
+   Final Margin: {breakdown["close_game"]["margin"]} points
    Scoring Tiers:
-     • 0-3 pts: {config['close_game_bonus']} points (100%)
-     • 4-5 pts: {config['close_game_bonus'] * 0.8:.1f} points (80%)
-     • 6-10 pts: {config['close_game_bonus'] * 0.5:.1f} points (50%)
-     • 11-15 pts: {config['close_game_bonus'] * 0.25:.1f} points (25%)
+     • 0-3 pts: {config["close_game_bonus"]} points (100%)
+     • 4-5 pts: {config["close_game_bonus"] * 0.8:.1f} points (80%)
+     • 6-10 pts: {config["close_game_bonus"] * 0.5:.1f} points (50%)
+     • 11-15 pts: {config["close_game_bonus"] * 0.25:.1f} points (25%)
      • 16+ pts: 0 points
-   Points Awarded: {breakdown['close_game']['points']:.1f} points
+   Points Awarded: {breakdown["close_game"]["points"]:.1f} points
 
-3. TOTAL POINTS (Minimum Threshold: {config['min_total_points']})
-   Total Points: {breakdown['total_points']['total']}
-   Threshold Met: {breakdown['total_points']['threshold_met']}
-   {'   Penalty: 90% reduction applied to final score' if breakdown['total_points'].get('penalty_applied') else '   No penalty applied'}
+3. TOTAL POINTS (Minimum Threshold: {config["min_total_points"]})
+   Total Points: {breakdown["total_points"]["total"]}
+   Threshold Met: {breakdown["total_points"]["threshold_met"]}
+   {"   Penalty: 90% reduction applied to final score" if breakdown["total_points"].get("penalty_applied") else "   No penalty applied"}
 
-4. STAR POWER (Weight: {config['star_power_weight']} pts per star)
-   Star Players: {breakdown['star_power']['count']}
-   Calculation: {breakdown['star_power']['count']} × {config['star_power_weight']} = {breakdown['star_power']['points']:.1f} points
-   {f"Current Star Players: {', '.join(sorted(self.nba_client.STAR_PLAYERS))}" if breakdown['star_power']['count'] == 0 else ''}
+4. STAR POWER (Weight: {config["star_power_weight"]} pts per star)
+   Star Players: {breakdown["star_power"]["count"]}
+   Calculation: {breakdown["star_power"]["count"]} × {config["star_power_weight"]} = {breakdown["star_power"]["points"]:.1f} points
+   {f"Current Star Players: {', '.join(sorted(self.nba_client.STAR_PLAYERS))}" if breakdown["star_power"]["count"] == 0 else ""}
 
-5. FAVORITE TEAM (Bonus: {config['favorite_team_bonus']} pts)
-   Has Favorite Team: {'Yes' if breakdown['favorite_team']['has_favorite'] else 'No'}
-   Points Awarded: {breakdown['favorite_team']['points']:.1f} points
+5. FAVORITE TEAM (Bonus: {config["favorite_team_bonus"]} pts)
+   Has Favorite Team: {"Yes" if breakdown["favorite_team"]["has_favorite"] else "No"}
+   Points Awarded: {breakdown["favorite_team"]["points"]:.1f} points
 
-{'='*60}
+{"=" * 60}
 FINAL CALCULATION:
-{'='*60}
+{"=" * 60}
 
-Base Score: {breakdown['top5_teams']['points']:.1f} + {breakdown['close_game']['points']:.1f} + {breakdown['star_power']['points']:.1f} + {breakdown['favorite_team']['points']:.1f}
-{f"After Penalty: × 0.1 (low total points)" if breakdown['total_points'].get('penalty_applied') else ''}
+Base Score: {breakdown["top5_teams"]["points"]:.1f} + {breakdown["close_game"]["points"]:.1f} + {breakdown["star_power"]["points"]:.1f} + {breakdown["favorite_team"]["points"]:.1f}
+{f"After Penalty: × 0.1 (low total points)" if breakdown["total_points"].get("penalty_applied") else ""}
 FINAL SCORE: {score:.2f}
 
-{'='*60}
+{"=" * 60}
 """
         else:
             # Standard summary mode
             summary = f"""
-{'='*60}
+{"=" * 60}
 🏀 MOST ENGAGING GAME 🏀
-{'='*60}
+{"=" * 60}
 
-{away['name']} @ {home['name']}
-Date: {game['game_date']}
+{away["name"]} @ {home["name"]}
+Date: {game["game_date"]}
 
-{'='*60}
+{"=" * 60}
 ENGAGEMENT SCORE: {score:.2f}
-{'='*60}
+{"=" * 60}
 
 Score Breakdown:
-  • Top 5 Teams: {breakdown['top5_teams']['count']} team(s) ({breakdown['top5_teams']['points']:.1f} pts)
-  • Close Game: ({breakdown['close_game']['points']:.1f} pts)
-  • Total Points: {breakdown['total_points']['total']} (threshold: {breakdown['total_points']['threshold_met']})
-  • Star Players: {breakdown['star_power']['count']} ({breakdown['star_power']['points']:.1f} pts)
-  • Favorite Team: {'Yes' if breakdown['favorite_team']['has_favorite'] else 'No'} ({breakdown['favorite_team']['points']:.1f} pts)
+  • Top 5 Teams: {breakdown["top5_teams"]["count"]} team(s) ({breakdown["top5_teams"]["points"]:.1f} pts)
+  • Close Game: ({breakdown["close_game"]["points"]:.1f} pts)
+  • Total Points: {breakdown["total_points"]["total"]} (threshold: {breakdown["total_points"]["threshold_met"]})
+  • Star Players: {breakdown["star_power"]["count"]} ({breakdown["star_power"]["points"]:.1f} pts)
+  • Favorite Team: {"Yes" if breakdown["favorite_team"]["has_favorite"] else "No"} ({breakdown["favorite_team"]["points"]:.1f} pts)
 
-{'='*60}
+{"=" * 60}
 """
         return summary

@@ -1,5 +1,9 @@
 name: CD - Deploy to Render
 
+# Triggers Render deployment which runs buildCommand from render.yaml.
+# The buildCommand syncs NBA data to SQLite before starting the app.
+# Note: Render free tier has no persistent disk, so data is re-synced on each deploy.
+
 on:
   push:
     branches:

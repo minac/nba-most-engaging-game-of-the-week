@@ -99,8 +99,10 @@ def main():
             for i, player in enumerate(sorted_players, 1):
                 print(f"{i:2d}. {player}")
 
-            print(f"\n{'='*60}")
-            print(f"Note: Star players are weighted at {game_service.star_power_weight} points each")
+            print(f"\n{'=' * 60}")
+            print(
+                f"Note: Star players are weighted at {game_service.star_power_weight} points each"
+            )
             print(f"      in the engagement scoring algorithm.")
             print(f"{'=' * 60}\n")
             return
@@ -108,7 +110,7 @@ def main():
         # Handle --top-teams command
         if args.top_teams:
             top_teams = game_service.top_teams
-            data_source = game_service.config.get('data_source', 'nba_stats')
+            data_source = game_service.config.get("data_source", "nba_stats")
 
             print(f"\n{'=' * 60}")
             print(f"🏆 TOP 5 TEAMS BY WIN PERCENTAGE")
@@ -122,8 +124,10 @@ def main():
             for i, team in enumerate(sorted_teams, 1):
                 print(f"{i}. {team}")
 
-            print(f"\n{'='*60}")
-            print(f"Note: Top 5 teams receive a {game_service.top5_team_bonus} point bonus")
+            print(f"\n{'=' * 60}")
+            print(
+                f"Note: Top 5 teams receive a {game_service.top5_team_bonus} point bonus"
+            )
             print(f"      in the engagement scoring algorithm.")
             print(f"{'=' * 60}\n")
             return
@@ -133,18 +137,20 @@ def main():
             print(f"\n🏀 Fetching NBA games from the last {args.days} days...\n")
 
             # Use shared service (handles validation and error handling)
-            response = game_service.get_all_games_ranked(days=args.days, favorite_team=args.team)
+            response = game_service.get_all_games_ranked(
+                days=args.days, favorite_team=args.team
+            )
 
-            if not response['success']:
-                error_code = response.get('error_code')
-                error_message = response.get('error', 'Unknown error')
+            if not response["success"]:
+                error_code = response.get("error_code")
+                error_message = response.get("error", "Unknown error")
                 logger.warning(f"Error getting games: {error_message}")
                 print(f"Error: {error_message}")
-                if error_code == 'VALIDATION_ERROR':
+                if error_code == "VALIDATION_ERROR":
                     sys.exit(1)
                 return
 
-            games = response['data']
+            games = response["data"]
 
             if not games:
                 logger.warning("No games found for the specified criteria")
@@ -169,29 +175,30 @@ def main():
                     # Show detailed breakdown
                     print(f"   {game_service.format_score_explanation(result)}")
                 else:
-                    print(
-                        f"   Lead Changes: {result['breakdown']['lead_changes']['count']} | "
-                        f"Margin: {result['breakdown']['close_game']['margin']} pts\n"
-                    )
+                    margin = result["breakdown"]["close_game"]["margin"]
+                    star_count = result["breakdown"]["star_power"]["count"]
+                    print(f"   Margin: {margin} pts | Stars: {star_count}\n")
 
         else:
             # Show best game only
             # Use shared service (handles validation and error handling)
-            response = game_service.get_best_game(days=args.days, favorite_team=args.team)
+            response = game_service.get_best_game(
+                days=args.days, favorite_team=args.team
+            )
 
-            if not response['success']:
-                error_code = response.get('error_code')
-                error_message = response.get('error', 'Unknown error')
+            if not response["success"]:
+                error_code = response.get("error_code")
+                error_message = response.get("error", "Unknown error")
                 logger.warning(f"Error getting best game: {error_message}")
-                if error_code == 'NO_GAMES':
+                if error_code == "NO_GAMES":
                     print("No completed games found in the specified period.")
                 else:
                     print(f"Error: {error_message}")
-                    if error_code == 'VALIDATION_ERROR':
+                    if error_code == "VALIDATION_ERROR":
                         sys.exit(1)
                 return
 
-            best_game = response['data']
+            best_game = response["data"]
             logger.info("Successfully retrieved best game recommendation")
             summary = game_service.format_game_summary(best_game, explain=args.explain)
             print(summary)
