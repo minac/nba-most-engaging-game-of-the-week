@@ -1,0 +1,6 @@
+- dramatically simplify web ui
+- check ~/.claude/CLAUDE.md and reduce or eliminate local claude.md
+- update uv.lock
+- Update readme and blog post
+- remove trmnl simulator
+- tell me how can i test all the features

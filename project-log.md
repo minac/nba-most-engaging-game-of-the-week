@@ -1,12 +1,23 @@
 <!-- AGENT_CONTEXT
 status: active development
-current_focus: Include data folder for Render deployment
+current_focus: Simplify TRMNL templates
 blockers: none
-next_steps: Create PR or continue with next todo item
-last_updated: 2025-12-19 09:15
+next_steps: Ship or continue with web UI simplification
+last_updated: 2025-12-19 09:25
 -->
 
 # Project Log
+
+## 2025-12-19 09:25
+
+**Did:** Simplified TRMNL full.liquid screen
+
+- Reduced from 165 to 80 lines
+- Spoiler-free: no scores or margins shown
+- Shows: matchup (GSW @ LAL), date, reason badges (Close game, Top 5 teams, etc.)
+- Clean minimal CSS
+
+---
 
 ## 2025-12-19 09:15
 
