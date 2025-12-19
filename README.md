@@ -38,14 +38,21 @@ uv run python src/interfaces/cli.py --all        # Show all games ranked
 Start server: `uv run python src/interfaces/web/app.py`
 
 - `GET /api/health` - Health check
-- `GET /api/best-game?days=7&team=LAL` - Best game
-- `GET /api/games?days=7&team=LAL` - All games ranked
+- `POST /recommend` - Get best game or all games ranked (JSON body)
 - `GET /api/trmnl?days=7&team=LAL` - TRMNL webhook format
 
 Example:
 
 ```bash
-curl "http://localhost:8080/api/best-game?days=7&team=LAL"
+# Best game
+curl -X POST http://localhost:8080/recommend \
+  -H "Content-Type: application/json" \
+  -d '{"days": 7, "favorite_team": "LAL"}'
+
+# All games ranked
+curl -X POST http://localhost:8080/recommend \
+  -H "Content-Type: application/json" \
+  -d '{"days": 7, "show_all": true}'
 ```
 
 ## TRMNL E-ink Display
@@ -106,9 +113,9 @@ uv run python src/interfaces/web/app.py &
 
 # Test endpoints
 curl http://localhost:8080/api/health
-curl "http://localhost:8080/api/best-game?days=7"
-curl "http://localhost:8080/api/best-game?days=7&team=LAL"
-curl "http://localhost:8080/api/games?days=3"
+curl -X POST http://localhost:8080/recommend -H "Content-Type: application/json" -d '{"days": 7}'
+curl -X POST http://localhost:8080/recommend -H "Content-Type: application/json" -d '{"days": 7, "favorite_team": "LAL"}'
+curl -X POST http://localhost:8080/recommend -H "Content-Type: application/json" -d '{"days": 3, "show_all": true}'
 curl "http://localhost:8080/api/trmnl?days=7"
 ```
 
