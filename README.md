@@ -54,16 +54,62 @@ The `/api/trmnl` endpoint returns data formatted for TRMNL's polling strategy. L
 
 ## Testing
 
+### Automated Tests (115 tests)
+
 ```bash
 # Install test dependencies
 uv sync --extra test
 
-# Run tests
+# Run all tests
 uv run pytest
 
 # Unit or integration tests only
 uv run pytest tests/unit/
 uv run pytest tests/integration/
+```
+
+### Manual Testing
+
+**Sync CLI** - Data synchronization:
+
+```bash
+uv run python src/interfaces/sync_cli.py --status    # Check sync status
+uv run python src/interfaces/sync_cli.py --days 7    # Sync last 7 days
+uv run python src/interfaces/sync_cli.py --metadata-only  # Sync teams/standings only
+```
+
+**Main CLI** - Game recommendations:
+
+```bash
+uv run python src/interfaces/cli.py              # Best game (last 7 days)
+uv run python src/interfaces/cli.py -d 3         # Last 3 days
+uv run python src/interfaces/cli.py -t LAL       # With favorite team
+uv run python src/interfaces/cli.py --all        # All games ranked
+uv run python src/interfaces/cli.py --explain    # Detailed scoring breakdown
+uv run python src/interfaces/cli.py --list-stars # Show tracked star players
+uv run python src/interfaces/cli.py --top-teams  # Show top 5 teams
+```
+
+**Web UI** - Browser interface:
+
+```bash
+uv run python src/interfaces/web/app.py
+# Open http://localhost:8080 in browser
+# Click "Find Game" to get recommendation
+```
+
+**REST API** - HTTP endpoints:
+
+```bash
+# Start server first
+uv run python src/interfaces/web/app.py &
+
+# Test endpoints
+curl http://localhost:8080/api/health
+curl "http://localhost:8080/api/best-game?days=7"
+curl "http://localhost:8080/api/best-game?days=7&team=LAL"
+curl "http://localhost:8080/api/games?days=3"
+curl "http://localhost:8080/api/trmnl?days=7"
 ```
 
 ## Database
