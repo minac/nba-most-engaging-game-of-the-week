@@ -1,4 +1,3 @@
-- dramatically simplify web ui
 - check ~/.claude/CLAUDE.md and reduce or eliminate local claude.md
 - update uv.lock
 - Update readme and blog post
