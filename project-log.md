@@ -1,12 +1,25 @@
 <!-- AGENT_CONTEXT
 status: active development
-current_focus: Remove TRMNL simulator
+current_focus: Update README
 blockers: none
 next_steps: Ship or continue with next task
-last_updated: 2025-12-19 10:05
+last_updated: 2025-12-19 10:15
 -->
 
 # Project Log
+
+## 2025-12-19 10:15
+
+**Did:** Updated README.md
+
+- Replaced Ball Don't Lie references with nba_api
+- Added sync step to Quick Start
+- Updated port from 3000 to 8080
+- Removed TRMNL viewer references
+- Removed coverage flags
+- Added Database section with SQLite info
+
+---
 
 ## 2025-12-19 10:05
 

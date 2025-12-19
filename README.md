@@ -1,12 +1,12 @@
 # NBA Game Recommender
 
-Finds the most engaging NBA game* from the past week using Ball Don't Lie NBA API data. Scores games based on closeness in points, whether star players played, if there were top teams involved, if your favorite team played, and whether the game had at least 200 points.
+Finds the most engaging NBA game from the past week. Scores games based on closeness, star players, top teams, your favorite team, and high-scoring games (200+ points).
 
 ## Features
 
-- **Multiple Interfaces**: CLI, REST API, Web UI, or TRMNL E-ink Display
-- **Balanced Configurable Scoring**: Evaluates games based on weights and preferences via `config.yaml`
-- **Cached**: File-based caching reduces API calls and improves performance
+- **Multiple Interfaces**: CLI, REST API, Web UI, TRMNL E-ink Display
+- **Free Data**: Uses nba_api (scrapes NBA.com, no API key needed)
+- **Fast**: SQLite database for instant queries after initial sync
 
 ## Quick Start
 
@@ -14,11 +14,11 @@ Finds the most engaging NBA game* from the past week using Ball Don't Lie NBA AP
 # Install dependencies
 uv sync
 
+# Sync NBA data (required before first use)
+uv run python src/interfaces/sync_cli.py
+
 # Run CLI
 uv run python src/interfaces/cli.py
-
-# Run API server (localhost:3000)
-uv run python src/interfaces/api_server.py
 
 # Run web interface (localhost:8080)
 uv run python src/interfaces/web/app.py
@@ -35,34 +35,22 @@ uv run python src/interfaces/cli.py --all        # Show all games ranked
 
 ## API Endpoints
 
-Start server: `uv run python src/interfaces/api_server.py`
+Start server: `uv run python src/interfaces/web/app.py`
 
 - `GET /api/health` - Health check
 - `GET /api/best-game?days=7&team=LAL` - Best game
 - `GET /api/games?days=7&team=LAL` - All games ranked
-- `GET /api/config` - Current configuration
 - `GET /api/trmnl?days=7&team=LAL` - TRMNL webhook format
 
 Example:
-```bash
-curl "http://localhost:3000/api/best-game?days=7&team=LAL"
-```
-
-## Web Interface
 
 ```bash
-uv run python src/interfaces/web/app.py
-open http://localhost:8080
+curl "http://localhost:8080/api/best-game?days=7&team=LAL"
 ```
 
 ## TRMNL E-ink Display
 
-To preview TRMNL layouts:
-
-```bash
-uv run python src/interfaces/web/app.py
-open http://localhost:8080/trmnl-viewer
-```
+The `/api/trmnl` endpoint returns data formatted for TRMNL's polling strategy. Liquid templates in `trmnl/src/`.
 
 ## Testing
 
@@ -70,32 +58,33 @@ open http://localhost:8080/trmnl-viewer
 # Install test dependencies
 uv sync --extra test
 
-# Run all tests with coverage
-uv run pytest --cov=src --cov-report=html
-
-# Run without coverage (faster)
-uv run pytest --no-cov
+# Run tests
+uv run pytest
 
 # Unit or integration tests only
 uv run pytest tests/unit/
 uv run pytest tests/integration/
-
 ```
 
-**Cache Management:**
-Tests use `/tmp/nba_cache` by default.
-```bash
-# Clear cache
-rm -rf /tmp/nba_cache
+## Database
 
-# Check cache
-ls -lh /tmp/nba_cache/scoreboards/
+Data stored in `data/nba_games.db` (SQLite). To refresh:
+
+```bash
+# Full sync
+uv run python src/interfaces/sync_cli.py
+
+# Games only
+uv run python src/interfaces/sync_cli.py games
+
+# Reset database
+rm data/nba_games.db && uv run python src/interfaces/sync_cli.py
 ```
 
 ## Configuration
 
-See `config.yaml`
+See `config.yaml` for scoring weights and settings.
 
-## Claude.md
+## Documentation
 
-See `claude.md` for detailed technical documentation.
+See `CLAUDE.md` for technical documentation.
