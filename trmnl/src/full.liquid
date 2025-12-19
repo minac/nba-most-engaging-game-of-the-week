@@ -1,164 +1,80 @@
-<div class="view view--full">
-  <div class="layout layout--column">
+<div class="screen">
+  {% if game %}
+    <h1>GAME OF THE WEEK</h1>
 
-    <!-- Header -->
-    <div class="header">
-      <div class="header__title">
-        <h1>🏀 MOST ENGAGING GAME</h1>
-      </div>
+    <div class="matchup">
+      {{ game.away_team.abbr }} @ {{ game.home_team.abbr }}
     </div>
 
-    <!-- Main Content -->
-    <div class="content flex-grow">
+    <div class="date">{{ game.game_date }}</div>
 
-      {% if game %}
-
-        <!-- Game Date -->
-        <div class="text-center mb-4">
-          <p class="text-muted">{{ game.game_date }}</p>
-        </div>
-
-        <!-- Teams and Score -->
-        <div class="game-score">
-          <div class="team team--away">
-            <div class="team__name">{{ game.away_team.name }}</div>
-            <div class="team__abbr text-muted">{{ game.away_team.abbr }}</div>
-          </div>
-
-          <div class="vs">
-            <span>@</span>
-          </div>
-
-          <div class="team team--home">
-            <div class="team__name">{{ game.home_team.name }}</div>
-            <div class="team__abbr text-muted">{{ game.home_team.abbr }}</div>
-          </div>
-        </div>
-
-
-      {% else %}
-
-        <!-- No Game Found -->
-        <div class="empty-state">
-          <div class="empty-state__icon">🏀</div>
-          <div class="empty-state__message">No games found</div>
-          <div class="empty-state__details text-muted">
-            {{ error_message | default: "Check back later for NBA game recommendations" }}
-          </div>
-        </div>
-
-      {% endif %}
-
+    <div class="reasons">
+      {% if breakdown.close_game.points != "0.0" %}<span>Close game</span>{% endif %}
+      {% if breakdown.top5_teams.count > 0 %}<span>Top 5 teams</span>{% endif %}
+      {% if breakdown.star_power.count > 0 %}<span>Star players</span>{% endif %}
+      {% if breakdown.total_points.threshold_met %}<span>High scoring</span>{% endif %}
+      {% if breakdown.favorite_team.points != "0.0" %}<span>Your team</span>{% endif %}
     </div>
 
-    <!-- Footer -->
-    <div class="footer text-center text-muted">
-      <p>Updated: {{ updated_at | default: "recently" }}</p>
+    <div class="footer">{{ updated_at }}</div>
+  {% else %}
+    <div class="empty">
+      <div class="icon">🏀</div>
+      <div>No games found</div>
     </div>
-
-  </div>
+  {% endif %}
 </div>
 
 <style>
-  .view--full {
+  .screen {
     width: 800px;
-    height: 400px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
+    height: 480px;
+    padding: 40px;
     box-sizing: border-box;
-    overflow: hidden;
-  }
-
-  .header__title h1 {
-    font-size: 1.5rem;
-    font-weight: bold;
-    text-align: center;
-    margin: 0 0 0.8rem 0;
-    padding-bottom: 0.6rem;
-    border-bottom: 2px solid #000;
-  }
-
-  .game-score {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    margin: 1.2rem 0;
-    gap: 1.5rem;
-  }
-
-  .team {
-    text-align: center;
-    flex: 1;
-  }
-
-  .team__name {
-    font-size: 1.1rem;
-    font-weight: 600;
-    margin-bottom: 0.2rem;
-  }
-
-  .team__abbr {
-    font-size: 0.8rem;
-    margin-bottom: 0.4rem;
-  }
-
-  .team__score {
-    font-size: 2.5rem;
-    font-weight: bold;
-    margin-top: 0.4rem;
-  }
-
-  .vs {
-    font-size: 1.2rem;
-    opacity: 0.5;
-    font-weight: bold;
-  }
-
-  .empty-state {
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    height: 100%;
     text-align: center;
+    font-family: system-ui, sans-serif;
   }
-
-  .empty-state__icon {
+  h1 {
+    font-size: 1.5rem;
+    margin: 0 0 2rem;
+    letter-spacing: 0.1em;
+  }
+  .matchup {
     font-size: 3rem;
-    margin-bottom: 0.8rem;
-  }
-
-  .empty-state__message {
-    font-size: 1.2rem;
-    font-weight: 600;
-    margin-bottom: 0.4rem;
-  }
-
-  .empty-state__details {
-    font-size: 0.9rem;
-  }
-
-  .footer {
-    margin-top: auto;
-    padding-top: 0.6rem;
-    border-top: 1px solid #ddd;
-    font-size: 0.75rem;
-  }
-
-  .text-center {
-    text-align: center;
-  }
-
-  .text-muted {
-    opacity: 0.6;
-  }
-
-  .mb-4 {
+    font-weight: bold;
     margin-bottom: 1rem;
   }
-
-  .flex-grow {
-    flex-grow: 1;
+  .date {
+    font-size: 1.2rem;
+    opacity: 0.6;
+    margin-bottom: 2rem;
   }
+  .reasons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .reasons span {
+    padding: 0.4rem 0.8rem;
+    border: 1px solid #000;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  .footer {
+    margin-top: auto;
+    font-size: 0.8rem;
+    opacity: 0.5;
+  }
+  .empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+  .icon { font-size: 3rem; }
 </style>
