@@ -1,2 +1,1 @@
-- Update readme and blog post
 - tell me how can i test all the features
