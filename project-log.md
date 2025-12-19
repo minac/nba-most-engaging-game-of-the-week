@@ -1,12 +1,22 @@
 <!-- AGENT_CONTEXT
 status: active development
-current_focus: Update README
+current_focus: Added comprehensive testing docs
 blockers: none
 next_steps: Ship or continue with next task
-last_updated: 2025-12-19 10:15
+last_updated: 2025-12-19 13:40
 -->
 
 # Project Log
+
+## 2025-12-19 13:40
+
+**Did:** Expanded Testing section in README.md
+
+- Added manual testing commands for all interfaces (Sync CLI, Main CLI, Web UI, REST API)
+- Documented 115 automated tests
+- All commands verified working
+
+---
 
 ## 2025-12-19 10:15
 
