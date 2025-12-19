@@ -1,12 +1,21 @@
 <!-- AGENT_CONTEXT
 status: active development
-current_focus: Reduce CLAUDE.md
+current_focus: Commit uv.lock
 blockers: none
 next_steps: Ship or continue with next task
-last_updated: 2025-12-19 09:45
+last_updated: 2025-12-19 09:55
 -->
 
 # Project Log
+
+## 2025-12-19 09:55
+
+**Did:** Committed uv.lock for reproducible builds
+
+- Removed uv.lock from .gitignore
+- Lock file ensures exact dependency versions across all environments
+
+---
 
 ## 2025-12-19 09:45
 
