@@ -1,12 +1,25 @@
 <!-- AGENT_CONTEXT
 status: active development
-current_focus: Simplify TRMNL templates
+current_focus: Simplify web UI
 blockers: none
-next_steps: Ship or continue with web UI simplification
-last_updated: 2025-12-19 09:25
+next_steps: Ship or continue with next task
+last_updated: 2025-12-19 09:35
 -->
 
 # Project Log
+
+## 2025-12-19 09:35
+
+**Did:** Dramatically simplified web UI
+
+- Reduced index.html from 493 to 200 lines
+- Removed Tailwind dependency, using vanilla CSS
+- Removed golden glow animations, slider, score breakdowns
+- Spoiler-free: shows matchup, date, reason badges only
+- Single "Find Game" button (removed Full Rankings)
+- Safe DOM manipulation (no innerHTML)
+
+---
 
 ## 2025-12-19 09:25
 
