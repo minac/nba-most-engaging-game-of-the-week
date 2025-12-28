@@ -20,7 +20,7 @@ class TestGameScorer:
         assert scorer.min_total_points == 200
         assert scorer.high_score_bonus == 10
         assert scorer.star_power_weight == 20
-        assert scorer.favorite_team_bonus == 75
+        assert scorer.favorite_team_bonus == 20
 
     def test_initialization_with_custom_config(self):
         """Test GameScorer initializes with custom config values."""
@@ -168,7 +168,7 @@ class TestGameScorer:
         result = self.scorer.score_game(game, favorite_team="LAL")
 
         assert result["breakdown"]["favorite_team"]["has_favorite"] is True
-        assert result["breakdown"]["favorite_team"]["points"] == 75
+        assert result["breakdown"]["favorite_team"]["points"] == 20
 
     def test_favorite_team_away(self):
         """Test favorite team bonus when favorite is away team."""
@@ -176,7 +176,7 @@ class TestGameScorer:
         result = self.scorer.score_game(game, favorite_team="BOS")
 
         assert result["breakdown"]["favorite_team"]["has_favorite"] is True
-        assert result["breakdown"]["favorite_team"]["points"] == 75
+        assert result["breakdown"]["favorite_team"]["points"] == 20
 
     def test_favorite_team_not_playing(self):
         """Test no favorite team bonus when favorite is not playing."""
@@ -213,10 +213,10 @@ class TestGameScorer:
         assert result["breakdown"]["close_game"]["points"] == 100  # 3pt margin
         assert result["breakdown"]["total_points"]["points"] == 10  # 233 total >= 200
         assert result["breakdown"]["star_power"]["points"] == 120  # 6 * 20
-        assert result["breakdown"]["favorite_team"]["points"] == 75
+        assert result["breakdown"]["favorite_team"]["points"] == 20
 
         # Total should be sum of all components
-        expected_score = 100 + 100 + 10 + 120 + 75
+        expected_score = 100 + 100 + 10 + 120 + 20
         assert result["score"] == expected_score
 
     def test_comprehensive_low_score_game(self):

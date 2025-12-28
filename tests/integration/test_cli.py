@@ -32,7 +32,7 @@ class TestCLI:
                 "close_game": {"margin": 3, "points": 100.0},
                 "total_points": {"total": 233, "threshold_met": True, "points": 10.0},
                 "star_power": {"count": 4, "points": 80.0},
-                "favorite_team": {"has_favorite": True, "points": 75.0},
+                "favorite_team": {"has_favorite": True, "points": 20.0},
             },
         }
         mock_instance.get_best_game.return_value = mock_game_result

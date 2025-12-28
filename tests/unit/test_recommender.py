@@ -22,7 +22,7 @@ scoring:
   close_game_bonus: 100
   min_total_points: 200
   star_power_weight: 20
-  favorite_team_bonus: 75
+  favorite_team_bonus: 20
 """
         with tempfile.NamedTemporaryFile(mode="w", delete=False, suffix=".yaml") as f:
             f.write(config_content)
@@ -239,7 +239,7 @@ scoring:
                 "close_game": {"margin": 3, "points": 100.0},
                 "total_points": {"total": 233, "threshold_met": True},
                 "star_power": {"count": 4, "points": 80.0},
-                "favorite_team": {"has_favorite": True, "points": 75.0},
+                "favorite_team": {"has_favorite": True, "points": 20.0},
             },
         }
 

@@ -18,7 +18,7 @@ class GameScorer:
         self.min_total_points = config.get("min_total_points", 200)
         self.high_score_bonus = config.get("high_score_bonus", 10)
         self.star_power_weight = config.get("star_power_weight", 20)
-        self.favorite_team_bonus = config.get("favorite_team_bonus", 75)
+        self.favorite_team_bonus = config.get("favorite_team_bonus", 20)
 
     def score_game(
         self, game: Dict, favorite_team: Optional[str] = None, top5_teams: set = None
