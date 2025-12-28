@@ -28,7 +28,7 @@ trmnl/src/                  # Liquid templates for e-ink
 2. **Close Game** (up to 50 pts) - Based on margin
 3. **High Score** (10 pts) - If total >= 200
 4. **Star Power** (20 pts/star) - Top 30 scorers
-5. **Favorite Team** (75 pts) - User preference
+5. **Favorite Team** (20 pts) - User preference
 
 Weights configurable in `config.yaml`.
 

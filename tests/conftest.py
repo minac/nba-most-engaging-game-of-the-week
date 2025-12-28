@@ -43,7 +43,7 @@ def sample_config():
         "min_total_points": 200,
         "high_score_bonus": 10,
         "star_power_weight": 20,
-        "favorite_team_bonus": 75,
+        "favorite_team_bonus": 20,
     }
 
 
